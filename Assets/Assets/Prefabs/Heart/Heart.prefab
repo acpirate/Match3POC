@@ -103,6 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7d30e750330e4e7a8a4a0f8a902c70e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  selectedIndicator: {fileID: 185580, guid: 235903262978b41ab849248160657f9b, type: 2}
 --- !u!198 &19856342
 ParticleSystem:
   m_ObjectHideFlags: 1
