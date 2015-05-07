@@ -218,7 +218,7 @@ GameObject:
   - 114: {fileID: 1202217896}
   m_Layer: 0
   m_Name: GameController
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -429,14 +429,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9972e188cc6ef4e02ac7730803ec8075, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jewels:
-  - {fileID: 124716, guid: 5339d7661c00e43e299f18d14af98642, type: 2}
-  - {fileID: 164332, guid: 61792bc65d62f4061bf19efc66f71454, type: 2}
-  - {fileID: 128022, guid: d49844b574f0e4b68abe4018fa6e0859, type: 2}
-  - {fileID: 171202, guid: 23bc6f8a10ff34b2c8bf2b3c77ec179e, type: 2}
-  - {fileID: 107408, guid: 82dc434eaec314130b9d6ecbaf1a178e, type: 2}
-  - {fileID: 189672, guid: e56e7fecf03944615bdc2fe8cb0c920b, type: 2}
-  - {fileID: 105612, guid: 9f7b2cb3b08884633a38f2605d993f37, type: 2}
+  piece: {fileID: 124716, guid: 24ea8e54272284826b86a4e7a296ad6f, type: 2}
   boardPieceOffest: 30
   boardPieceSpacing: 60
 --- !u!1 &2104052616

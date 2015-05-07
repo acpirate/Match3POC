@@ -1,9 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum SHAPE {CONE, CROSS, HEART,
+	HOLLOWCUBE, ICOSPHERE,
+	STAR, TORUS}
+
 public class PieceController : MonoBehaviour {
 
 	public GameObject selectedIndicator;
+
+	public Mesh coneMesh;
+	public Mesh crossMesh;
+	public Mesh heartMesh;
+	public Mesh hollowCubeMesh;
+	public Mesh icoSphereMesh;
+	public Mesh starMesh;
+	public Mesh torusMesh;
+
+	public Color coneColor;
+	public Color crossColor;
+	public Color heartColor;
+	public Color hollowCubeColor;
+	public Color icoSphereColor;
+	public Color starColor;
+	public Color torusColor;
+
+	public SHAPE myShape;
 
 	private static float rotateSpeed=180f;
 	private Quaternion myStartRotation;
@@ -12,6 +34,8 @@ public class PieceController : MonoBehaviour {
 	private Rigidbody myBody; 
 	private GameObject mySelectedIndicator;
 	private BoardController boardController;
+	private MeshRenderer myRenderer;
+	private MeshFilter myFilter;
 
 
 	//built in unity methods
@@ -20,20 +44,21 @@ public class PieceController : MonoBehaviour {
 	{
 		boardController=GameObject.FindGameObjectWithTag("Board").GetComponent<BoardController>();
 		mySelectedIndicator=null;
-		myStartRotation=transform.rotation;
 		myBody=GetComponent<Rigidbody>();
+		myRenderer=GetComponent<MeshRenderer>();
+		myFilter=GetComponent<MeshFilter>();
 	}
 
 	// Use this for initialization
 	void Start () 
 	{
-
+		SetRandomShape();
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
-	
+
 	}
 
 	void OnMouseEnter() 
@@ -81,6 +106,51 @@ public class PieceController : MonoBehaviour {
 
 	//private methods
 
+	void SetRandomShape()
+	{
+		switch (GameController.GetRandomEnum<SHAPE>()) 
+		{
+		case SHAPE.CONE:
+			myFilter.mesh=coneMesh;
+			myRenderer.material.color=coneColor;
+			transform.rotation=Quaternion.Euler(new Vector3(0,0,90));
+			myShape=SHAPE.CONE;
+			break;
+		case SHAPE.CROSS:
+			myFilter.mesh=crossMesh;
+			myRenderer.material.color=crossColor;
+			myShape=SHAPE.CROSS;
+			break;
+		case SHAPE.HEART:
+			myFilter.mesh=heartMesh;
+			myRenderer.material.color=heartColor;
+			myShape=SHAPE.HEART;
+			break;
+		case SHAPE.HOLLOWCUBE:
+			myFilter.mesh=hollowCubeMesh;
+			myRenderer.material.color=hollowCubeColor;
+			myShape=SHAPE.HOLLOWCUBE;
+			break;
+		case SHAPE.ICOSPHERE:
+			myFilter.mesh=icoSphereMesh;
+			myRenderer.material.color=icoSphereColor;
+			myShape=SHAPE.ICOSPHERE;
+			break;
+		case SHAPE.STAR:
+			myFilter.mesh=starMesh;
+			myRenderer.material.color=starColor;
+			myShape=SHAPE.STAR;
+			break;
+		case SHAPE.TORUS:
+			myFilter.mesh=torusMesh;
+			myRenderer.material.color=torusColor;
+			transform.rotation=Quaternion.Euler(new Vector3(90f,0,0));
+			myShape=SHAPE.TORUS;
+			break;
+		}
+
+		myStartRotation=transform.localRotation;
+	}
 
 	//end private methods
 

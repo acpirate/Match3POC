@@ -2,59 +2,50 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum GAMESTATE {SELECTION, MOVING};
+
 
 public class BoardController : MonoBehaviour {
 
-	const int boardSize=8;
+	public static readonly int boardSize=8;
 
-	public GameObject[] jewels;
+	public GameObject piece;
+
 	public float boardPieceOffest = 30f;
 	public float boardPieceSpacing= 60f;
 
 	private float boardCorner;
 	private GameObject[,] board;
-	private GAMESTATE gameState=GAMESTATE.SELECTION;
+	private GameController gameController;
 
 	//unity default methods
 
-	void Awake() {
+	void Awake() 
+	{
+		gameController=GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+
 		boardCorner=boardPieceSpacing*(boardSize-2f)*-.5f-boardPieceOffest;
 
 		board = new GameObject[boardSize,boardSize];
-
-
 	}
 
 	// Use this for initialization
-	void Start () {
-		RandomizeBoard();
+	void Start () 
+	{
+		CreateBoard();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
 
 	//end unity default methods
 
 	//private methods
 
-
-	GameObject GetRandomJewel()
-	{
-		int jewelIndex=Random.Range(0,jewels.Length);
-
-		return jewels[jewelIndex];
-	}
-
-	void RandomizeBoard()
+	void CreateBoard()
 	{
 		for(int colCounter=0;colCounter<boardSize;colCounter++)
 		{
 			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
 			{
-				board[colCounter,rowCounter] = Instantiate(GetRandomJewel());
+				board[colCounter,rowCounter] = Instantiate(piece);
 				SetBoardPosition(colCounter,rowCounter);
 			}
 		}
@@ -94,9 +85,8 @@ public class BoardController : MonoBehaviour {
 
 	Coords GetIndexOf(GameObject queriedPiece)
 	{
-		Coords returnCoords= new Coords();
-		returnCoords.x=-1;
-		returnCoords.y=-1;
+		Coords returnCoords= new Coords(-1,-1);
+
 
 		for(int colCounter=0;colCounter<boardSize;colCounter++)
 		{
@@ -122,15 +112,23 @@ public class BoardController : MonoBehaviour {
 		return returnCoords;
 	}
 
-	void SwapPieces(GameObject piece1, GameObject piece2)
+	void AttemptSwapPieces(GameObject piece1, GameObject piece2)
 	{
-		gameState=GAMESTATE.MOVING;
+		GameController.gameState=GAMESTATE.MOVING;
 		UnselectAll();
 
+		MakeSwap(piece1,piece2);
+
+		if (!(gameController.CheckMatches())) MakeSwap(piece1,piece2);
+	
+
+		GameController.gameState=GAMESTATE.SELECTION;
+	}
+
+	void MakeSwap(GameObject piece1, GameObject piece2)
+	{
 		Coords piece1Coords = GetIndexOf (piece1);
 		Coords piece2Coords = GetIndexOf (piece2);
-
-		//Debug.Log("piece1coords="+piece1Coords.CoordString()+" piece2coords="+piece2Coords.CoordString());
 
 		GameObject tempPiece = piece1;
 		board[piece1Coords.x,piece1Coords.y]=piece2;
@@ -138,7 +136,7 @@ public class BoardController : MonoBehaviour {
 
 		SetBoardPosition(piece1Coords.x,piece1Coords.y);
 		SetBoardPosition(piece2Coords.x,piece2Coords.y);
-		gameState=GAMESTATE.SELECTION;
+
 	}
 
 	//end private methods
@@ -156,7 +154,7 @@ public class BoardController : MonoBehaviour {
 	public void TrySelect(GameObject pieceToTryToSelect)
 	{
 		//break out if we aren't in the selection state
-		if (!(gameState==GAMESTATE.SELECTION)) return;
+		if (!(GameController.gameState==GAMESTATE.SELECTION)) return;
 
 		PieceController pieceController = pieceToTryToSelect.GetComponent<PieceController>();
 
@@ -172,7 +170,7 @@ public class BoardController : MonoBehaviour {
 		{
 			if (neighbor.gameObject.GetComponent<PieceController>().GetSelected())
 			{
-				SwapPieces(pieceToTryToSelect,neighbor);
+				AttemptSwapPieces(pieceToTryToSelect,neighbor);
 				return;
 			}
 		}
@@ -183,6 +181,11 @@ public class BoardController : MonoBehaviour {
 
 	}
 
+	public GameObject[,] GetBoard()
+	{
+		return board;
+	}
+
 	//end public methods
 
 }
@@ -190,6 +193,12 @@ public class BoardController : MonoBehaviour {
 public class Coords {
 	public int x;
 	public int y;
+
+	public Coords(int inX, int inY)
+	{
+		x=inX;
+		y=inY;
+	}
 
 	public string CoordString() {
 		return x.ToString() + "," + y.ToString();
