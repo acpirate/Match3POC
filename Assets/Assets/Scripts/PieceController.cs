@@ -25,6 +25,7 @@ public class PieceController : MonoBehaviour {
 	public Color starColor;
 	public Color torusColor;
 
+	[HideInInspector]
 	public SHAPE myShape;
 
 	private static float rotateSpeed=180f;
@@ -64,6 +65,7 @@ public class PieceController : MonoBehaviour {
 	void OnMouseEnter() 
 	{
 		myBody.AddTorque(new Vector3(0,rotateSpeed,0));
+		//Debug.Log(boardController.GetIndexOf(gameObject).CoordString());
 	}
 
 	void OnMouseExit() 

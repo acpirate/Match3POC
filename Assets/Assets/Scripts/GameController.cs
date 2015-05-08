@@ -83,14 +83,7 @@ public class GameController : MonoBehaviour {
 		return threeMatches;
 
 	}
-
-	public bool CheckMatches()
-	{
-		bool isMatches=false;
-
-		if (GetThreeMatches().Count>0) isMatches=true;
-		return isMatches;
-	}
+	
 
 	//end public methods
 

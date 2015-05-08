@@ -46,20 +46,26 @@ public class BoardController : MonoBehaviour {
 			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
 			{
 				board[colCounter,rowCounter] = Instantiate(piece);
-				SetBoardPosition(colCounter,rowCounter);
+				MoveToWorldPosition(colCounter,rowCounter);
 			}
 		}
 	}
 
-	void SetBoardPosition(int col, int row)
+	void MoveToWorldPosition(int col, int row)
+	{
+
+		board[col,row].transform.position=CalculateWorldPosition(col, row);
+
+	}
+
+	Vector3 CalculateWorldPosition(int col, int row)
 	{
 		float xPosition = boardCorner + col * boardPieceSpacing;
 		float yPosition = boardCorner + row * boardPieceSpacing;
 
 		Vector3 piecePosition = new Vector3(xPosition, yPosition,0f);
 
-		board[col,row].transform.position=piecePosition;
-
+		return piecePosition;
 	}
 
 	public List<GameObject> GetNeighbors(GameObject queriedPiece)
@@ -83,7 +89,7 @@ public class BoardController : MonoBehaviour {
 		return returnNeighbors;
 	}
 
-	Coords GetIndexOf(GameObject queriedPiece)
+	public Coords GetIndexOf(GameObject queriedPiece)
 	{
 		Coords returnCoords= new Coords(-1,-1);
 
@@ -108,7 +114,6 @@ public class BoardController : MonoBehaviour {
 			Application.Quit();
 		}
 
-
 		return returnCoords;
 	}
 
@@ -119,8 +124,16 @@ public class BoardController : MonoBehaviour {
 
 		MakeSwap(piece1,piece2);
 
-		if (!(gameController.CheckMatches())) MakeSwap(piece1,piece2);
-	
+		List<ThreeMatch> tempMatchList=gameController.GetThreeMatches();
+
+		if (tempMatchList.Count>0) 
+		{
+			RemoveMatches(tempMatchList);
+		}
+		else 
+		{
+			MakeSwap(piece1,piece2);
+		}
 
 		GameController.gameState=GAMESTATE.SELECTION;
 	}
@@ -134,8 +147,85 @@ public class BoardController : MonoBehaviour {
 		board[piece1Coords.x,piece1Coords.y]=piece2;
 		board[piece2Coords.x,piece2Coords.y]=tempPiece;
 
-		SetBoardPosition(piece1Coords.x,piece1Coords.y);
-		SetBoardPosition(piece2Coords.x,piece2Coords.y);
+		MoveToWorldPosition(piece1Coords.x,piece1Coords.y);
+		MoveToWorldPosition(piece2Coords.x,piece2Coords.y);
+
+	}
+	
+	void RemoveMatches(List<ThreeMatch> matchesToRemove)
+	{
+		foreach (ThreeMatch match in matchesToRemove)
+		{
+			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+			{
+				DestroyImmediate(board[match.matchStart.x,match.matchStart.y]);
+				DestroyImmediate(board[match.matchStart.x+1,match.matchStart.y]);
+				DestroyImmediate(board[match.matchStart.x+2,match.matchStart.y]);
+			}
+			if (match.matchDirection==MATCHDIRECTION.VERTICAL)
+			{
+				DestroyImmediate(board[match.matchStart.x,match.matchStart.y]);
+				DestroyImmediate(board[match.matchStart.x,match.matchStart.y+1]);
+				DestroyImmediate(board[match.matchStart.x,match.matchStart.y+2]);
+			}
+		}
+
+		MovePiecesDown();
+	}
+
+	void MovePiecesDown()
+	{
+		for(int colCounter=0;colCounter<boardSize;colCounter++)
+		{
+			int missingCounter=0;
+			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
+			{
+				if (board[colCounter, rowCounter]==null)
+				{
+					missingCounter++;
+				}
+				else 
+				{
+					if (missingCounter>0) 
+					{
+						GameObject tempPiece=board[colCounter,rowCounter];
+						board[colCounter,rowCounter]=null;
+						board[colCounter,rowCounter-missingCounter]=tempPiece;
+						MoveToWorldPosition(colCounter,rowCounter-missingCounter);
+					}
+				}
+			}	
+		}
+
+	}
+
+
+	void ReplaceMatches()
+	{
+		for(int colCounter=0;colCounter<boardSize;colCounter++)
+		{
+			int missingCounter=0;
+			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
+			{
+				if (board[colCounter, rowCounter]==null)
+				{
+					missingCounter++;
+					board[colCounter, rowCounter]=(GameObject)
+						Instantiate(piece,CalculateMissingPosition(missingCounter,colCounter),Quaternion.identity);
+				}
+			}
+
+		}
+	}
+
+	Vector3 CalculateMissingPosition(int missingCounter, int col)
+	{
+		float xPosition = boardCorner + col * boardPieceSpacing;
+		float yPosition = -boardCorner + missingCounter * boardPieceSpacing;
+		
+		Vector3 piecePosition = new Vector3(xPosition, yPosition,0f);
+		
+		return piecePosition;
 
 	}
 
