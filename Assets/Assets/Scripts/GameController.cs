@@ -38,6 +38,21 @@ public class GameController : MonoBehaviour {
 		board=boardController.GetBoard();
 	}
 
+
+	void Update()
+	{
+		switch (GameController.gameState) 
+		{
+			case GAMESTATE.MOVING:
+				if (!ArePiecesMoving())
+				{
+					PiecesStoppedMoving();
+				}
+			break;
+		}
+
+		//if (GameController.gameState==GAMESTATE.MOVING && !(ArePiecesMoving())) GameController.gameState=GAMESTATE.SELECTION;
+	}
 	//end unity builtin methods
 
 	//public methods
@@ -86,6 +101,44 @@ public class GameController : MonoBehaviour {
 	
 
 	//end public methods
+
+	//private methods
+
+	void PiecesStoppedMoving()
+	{
+		List<ThreeMatch> matches = GetThreeMatches();
+
+		if (matches.Count>0) 
+		{
+			boardController.RemoveMatches(matches);
+		}
+		else
+		{
+			gameState=GAMESTATE.SELECTION;
+		}
+	}
+
+	bool ArePiecesMoving()
+	{
+		bool piecesMoving=false;
+		for(int colCounter=0;colCounter<BoardController.boardSize;colCounter++)
+		{
+			for (int rowCounter=0;rowCounter<BoardController.boardSize;rowCounter++)
+			{
+				if (board[colCounter,rowCounter].GetComponent<PieceController>().animateMove)
+				{
+					piecesMoving=true;
+					break;
+				}
+			}
+			if (piecesMoving) break;
+		}
+
+		return piecesMoving;
+	}
+
+
+	// end private methods
 
 }
 

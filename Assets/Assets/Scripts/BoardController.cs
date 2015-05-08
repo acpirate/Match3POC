@@ -119,7 +119,7 @@ public class BoardController : MonoBehaviour {
 
 	void AttemptSwapPieces(GameObject piece1, GameObject piece2)
 	{
-		GameController.gameState=GAMESTATE.MOVING;
+
 		UnselectAll();
 
 		MakeSwap(piece1,piece2);
@@ -135,7 +135,8 @@ public class BoardController : MonoBehaviour {
 			MakeSwap(piece1,piece2);
 		}
 
-		GameController.gameState=GAMESTATE.SELECTION;
+		GameController.gameState=GAMESTATE.MOVING;
+
 	}
 
 	void MakeSwap(GameObject piece1, GameObject piece2)
@@ -152,7 +153,7 @@ public class BoardController : MonoBehaviour {
 
 	}
 	
-	void RemoveMatches(List<ThreeMatch> matchesToRemove)
+	public void RemoveMatches(List<ThreeMatch> matchesToRemove)
 	{
 		foreach (ThreeMatch match in matchesToRemove)
 		{

@@ -118,6 +118,9 @@ MonoBehaviour:
   icoSphereColor: {r: 1, g: 1, b: 1, a: 0}
   starColor: {r: 1, g: 1, b: 0, a: 0}
   torusColor: {r: 1, g: .498039216, b: 0, a: 0}
+  moveSpeed: 200
+  myShape: 0
+  animateMove: 0
 --- !u!198 &19892798
 ParticleSystem:
   m_ObjectHideFlags: 1

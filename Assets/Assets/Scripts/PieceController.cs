@@ -32,7 +32,7 @@ public class PieceController : MonoBehaviour {
 	[HideInInspector]
 	public bool animateMove=false;
 
-	private static float rotateSpeed=180f;
+	private static float rotateSpeed=360f;
 	private Quaternion myStartRotation;
 	private bool selected=false;
 
@@ -73,6 +73,7 @@ public class PieceController : MonoBehaviour {
 
 	void OnMouseEnter() 
 	{
+		if (GameController.gameState==GAMESTATE.SELECTION)
 		myBody.AddTorque(new Vector3(0,rotateSpeed,0));
 		//Debug.Log(boardController.GetIndexOf(gameObject).CoordString());
 	}
