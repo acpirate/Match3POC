@@ -25,12 +25,19 @@ public class PieceController : MonoBehaviour {
 	public Color starColor;
 	public Color torusColor;
 
+	public float moveSpeed;
+
 	[HideInInspector]
 	public SHAPE myShape;
+	[HideInInspector]
+	public bool animateMove=false;
 
 	private static float rotateSpeed=180f;
 	private Quaternion myStartRotation;
 	private bool selected=false;
+
+	private Vector3 moveTargetPosition;
+
 
 	private Rigidbody myBody; 
 	private GameObject mySelectedIndicator;
@@ -48,6 +55,8 @@ public class PieceController : MonoBehaviour {
 		myBody=GetComponent<Rigidbody>();
 		myRenderer=GetComponent<MeshRenderer>();
 		myFilter=GetComponent<MeshFilter>();
+
+		moveTargetPosition=Vector3.zero;
 	}
 
 	// Use this for initialization
@@ -59,7 +68,7 @@ public class PieceController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-
+		if (animateMove) AnimateMove();
 	}
 
 	void OnMouseEnter() 
@@ -102,6 +111,29 @@ public class PieceController : MonoBehaviour {
 	public bool GetSelected()
 	{
 		return selected;
+	}
+
+	public void SetMoveTargetPosition(Vector3 inMoveTarget)
+	{
+		moveTargetPosition=inMoveTarget;
+	}
+
+	public void AnimateMove()
+	{
+		if (moveTargetPosition==Vector3.zero) 
+		{
+			animateMove=false;
+			return;
+		}
+		float step = moveSpeed * Time.deltaTime;
+		transform.position = Vector3.MoveTowards(transform.position, moveTargetPosition, step);
+
+		if (transform.position==moveTargetPosition) 
+		{
+			animateMove=false;
+			moveTargetPosition=Vector3.zero;
+		}
+
 	}
 
 	//end public methods

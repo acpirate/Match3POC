@@ -46,12 +46,12 @@ public class BoardController : MonoBehaviour {
 			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
 			{
 				board[colCounter,rowCounter] = Instantiate(piece);
-				MoveToWorldPosition(colCounter,rowCounter);
+				SnapToWorldPosition(colCounter,rowCounter);
 			}
 		}
 	}
 
-	void MoveToWorldPosition(int col, int row)
+	void SnapToWorldPosition(int col, int row)
 	{
 
 		board[col,row].transform.position=CalculateWorldPosition(col, row);
@@ -147,8 +147,8 @@ public class BoardController : MonoBehaviour {
 		board[piece1Coords.x,piece1Coords.y]=piece2;
 		board[piece2Coords.x,piece2Coords.y]=tempPiece;
 
-		MoveToWorldPosition(piece1Coords.x,piece1Coords.y);
-		MoveToWorldPosition(piece2Coords.x,piece2Coords.y);
+		SnapToWorldPosition(piece1Coords.x,piece1Coords.y);
+		SnapToWorldPosition(piece2Coords.x,piece2Coords.y);
 
 	}
 	
@@ -170,10 +170,20 @@ public class BoardController : MonoBehaviour {
 			}
 		}
 
-		MovePiecesDown();
+		MoveDownAndReplacePieces();
+		AnimateMove();
+
 	}
 
-	void MovePiecesDown()
+	void AnimateMove()
+	{
+		foreach(GameObject piece in board)
+		{
+			piece.GetComponent<PieceController>().animateMove=true;
+		}
+	}
+
+	void MoveDownAndReplacePieces()
 	{
 		for(int colCounter=0;colCounter<boardSize;colCounter++)
 		{
@@ -191,30 +201,26 @@ public class BoardController : MonoBehaviour {
 						GameObject tempPiece=board[colCounter,rowCounter];
 						board[colCounter,rowCounter]=null;
 						board[colCounter,rowCounter-missingCounter]=tempPiece;
-						MoveToWorldPosition(colCounter,rowCounter-missingCounter);
+						tempPiece.GetComponent<PieceController>().SetMoveTargetPosition(CalculateWorldPosition(colCounter,rowCounter-missingCounter));
+						//MoveToWorldPosition(colCounter,rowCounter-missingCounter);
 					}
 				}
-			}	
+			}
+			ReplaceMatches(colCounter,missingCounter);
+
 		}
 
 	}
 
-
-	void ReplaceMatches()
+	void ReplaceMatches(int col, int missingCounter)
 	{
-		for(int colCounter=0;colCounter<boardSize;colCounter++)
+		for(int i = 1;i<missingCounter+1;i++)
 		{
-			int missingCounter=0;
-			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
-			{
-				if (board[colCounter, rowCounter]==null)
-				{
-					missingCounter++;
-					board[colCounter, rowCounter]=(GameObject)
-						Instantiate(piece,CalculateMissingPosition(missingCounter,colCounter),Quaternion.identity);
-				}
-			}
 
+			board[col,boardSize-i] = (GameObject) Instantiate(piece,CalculateMissingPosition(missingCounter-i+1,col),Quaternion.identity);
+			board[col,boardSize-i].GetComponent<PieceController>().SetMoveTargetPosition(CalculateWorldPosition(
+				col,boardSize-i));
+			//Debug.Log(col.ToString()+" "+(boardSize-i).ToString());
 		}
 	}
 
