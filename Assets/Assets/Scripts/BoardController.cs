@@ -49,6 +49,33 @@ public class BoardController : MonoBehaviour {
 				SnapToWorldPosition(colCounter,rowCounter);
 			}
 		}
+
+		// adjust board until there are no matches
+		List<ThreeMatch> matchList=gameController.GetThreeMatches();
+
+		//Debug.Log(matchList.Count.ToString());
+		int matchResetCounter=0;
+
+		while (matchList.Count>0)
+		{
+			matchResetCounter++;
+			foreach (ThreeMatch match in matchList)
+			{
+				if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+				{
+					//Debug.Log("changing shape hmatch"+match.matchStart.CoordString());
+					board[match.matchStart.x+1,match.matchStart.y].GetComponent<PieceController>().SetRandomShape();
+				}
+				if (match.matchDirection==MATCHDIRECTION.VERTICAL)
+				{
+					//Debug.Log("changing shape vmatch"+match.matchStart.CoordString());
+					board[match.matchStart.x,match.matchStart.y+1].GetComponent<PieceController>().SetRandomShape();
+				}
+			}
+			matchList=gameController.GetThreeMatches();
+			//Debug.Log(matchList.Count.ToString());
+		}
+		//Debug.Log("matchresetcounter"+matchResetCounter.ToString());
 	}
 
 	void SnapToWorldPosition(int col, int row)
@@ -74,9 +101,9 @@ public class BoardController : MonoBehaviour {
 
 		Coords pieceIndex=GetIndexOf(queriedPiece);
 
-		//north neighbor
-		if (pieceIndex.y>0) returnNeighbors.Add(board[pieceIndex.x,pieceIndex.y-1]);
 		//south neighbor
+		if (pieceIndex.y>0) returnNeighbors.Add(board[pieceIndex.x,pieceIndex.y-1]);
+		//north neighbor
 		if (pieceIndex.y<boardSize-1) returnNeighbors.Add(board[pieceIndex.x,pieceIndex.y+1]);
 		//east neighbor
 		if (pieceIndex.x>0) returnNeighbors.Add(board[pieceIndex.x-1,pieceIndex.y]);

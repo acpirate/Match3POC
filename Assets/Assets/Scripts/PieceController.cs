@@ -33,7 +33,7 @@ public class PieceController : MonoBehaviour {
 	public bool animateMove=false;
 
 	private static float rotateSpeed=360f;
-	private Quaternion myStartRotation;
+	private Vector3 myStartRotation;
 	private bool selected=false;
 
 	private Vector3 moveTargetPosition;
@@ -57,12 +57,13 @@ public class PieceController : MonoBehaviour {
 		myFilter=GetComponent<MeshFilter>();
 
 		moveTargetPosition=Vector3.zero;
+		SetRandomShape();
 	}
 
 	// Use this for initialization
 	void Start () 
 	{
-		SetRandomShape();
+		//SetRandomShape();
 	}
 	
 	// Update is called once per frame
@@ -81,7 +82,7 @@ public class PieceController : MonoBehaviour {
 	void OnMouseExit() 
 	{
 		myBody.angularVelocity=new Vector3(0,0,0);
-		transform.rotation=myStartRotation;
+		transform.localEulerAngles=myStartRotation;
 	}
 
 	void OnMouseDown()
@@ -137,18 +138,16 @@ public class PieceController : MonoBehaviour {
 
 	}
 
-	//end public methods
-
-	//private methods
-
-	void SetRandomShape()
+	public void SetRandomShape()
 	{
+		transform.localEulerAngles=Vector3.zero;
+
 		switch (GameController.GetRandomEnum<SHAPE>()) 
 		{
 		case SHAPE.CONE:
 			myFilter.mesh=coneMesh;
 			myRenderer.material.color=coneColor;
-			transform.rotation=Quaternion.Euler(new Vector3(0,0,90));
+			transform.localEulerAngles=new Vector3(0,0,90f);
 			myShape=SHAPE.CONE;
 			break;
 		case SHAPE.CROSS:
@@ -179,13 +178,18 @@ public class PieceController : MonoBehaviour {
 		case SHAPE.TORUS:
 			myFilter.mesh=torusMesh;
 			myRenderer.material.color=torusColor;
-			transform.rotation=Quaternion.Euler(new Vector3(90f,0,0));
+			transform.localEulerAngles=new Vector3(90f,0,0);
 			myShape=SHAPE.TORUS;
 			break;
 		}
 
-		myStartRotation=transform.localRotation;
+		myStartRotation=transform.localEulerAngles;
 	}
+
+	
+	//end public methods
+	
+	//private methods
 
 	//end private methods
 
