@@ -1,0 +1,2 @@
+- List of commands: HELP
+- Type "Help <Command>" to get help with a command
