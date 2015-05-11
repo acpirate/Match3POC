@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public enum MATCHDIRECTION {HORIZONTAL, VERTICAL};
-public enum GAMESTATE {SELECTION, MOVING};
+public enum GAMESTATE {SELECTION, MOVING, CONSOLE};
 
 
 public class GameController : MonoBehaviour {
 
 	public static GAMESTATE gameState;
+
+	public GameObject console;
 
 	BoardController boardController;
 	GameObject[,] board;
@@ -28,7 +31,7 @@ public class GameController : MonoBehaviour {
 	
 	void Awake() 
 	{
-		gameState=GAMESTATE.SELECTION;
+		gameState=GAMESTATE.CONSOLE;
 		boardController=GameObject.FindGameObjectWithTag("Board").GetComponent<BoardController>();
 
 	}
@@ -47,6 +50,20 @@ public class GameController : MonoBehaviour {
 				if (!ArePiecesMoving())
 				{
 					PiecesStoppedMoving();
+				}
+			break;
+			case GAMESTATE.SELECTION:
+				
+				if (Input.GetKeyDown(KeyCode.Tab)) 
+				{
+					ToggleConsole();
+				}
+			break;
+			case GAMESTATE.CONSOLE:
+				
+				if (Input.GetKeyDown(KeyCode.Tab)) 
+				{
+					ToggleConsole();
 				}
 			break;
 		}
@@ -103,6 +120,20 @@ public class GameController : MonoBehaviour {
 	//end public methods
 
 	//private methods
+
+	void ToggleConsole()
+	{
+		if (console.activeSelf) 
+		{
+			console.SetActive(false);
+			gameState=GAMESTATE.SELECTION;
+		}
+		else 
+		{
+			console.SetActive(true);
+			gameState=GAMESTATE.CONSOLE;
+		}
+	}
 
 	void PiecesStoppedMoving()
 	{
