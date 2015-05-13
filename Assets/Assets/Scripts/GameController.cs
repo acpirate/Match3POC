@@ -115,7 +115,11 @@ public class GameController : MonoBehaviour {
 		return threeMatches;
 
 	}
-	
+
+	public void ChangePieceAction(int x, int y, string shape)
+	{
+		board[x,y].GetComponent<PieceController>().SetShapeFromString(shape);
+	}	
 
 	//end public methods
 
@@ -167,7 +171,6 @@ public class GameController : MonoBehaviour {
 
 		return piecesMoving;
 	}
-
 
 	// end private methods
 

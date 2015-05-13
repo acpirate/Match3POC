@@ -625,7 +625,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   consoleInput: {fileID: 641965033}
   consoleOutput: {fileID: 1576264575}
-  consoleLines: 18
+  consoleLines: 19
+  gameController: {fileID: 1202217896}
 --- !u!223 &1092725740
 Canvas:
   m_ObjectHideFlags: 0
@@ -857,7 +858,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FontData:
     m_Font: {fileID: 12800000, guid: 4aa3e0b97cc0a495c9dc4c84682c8d5f, type: 3}
     m_FontSize: 20
@@ -905,7 +906,7 @@ MonoBehaviour:
   m_Script: {fileID: -900027084, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: .5}
+  m_EffectColor: {r: .470588207, g: .470588207, b: .470588207, a: .501960814}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
 --- !u!1 &1850173302

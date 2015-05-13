@@ -140,9 +140,51 @@ public class PieceController : MonoBehaviour {
 
 	public void SetRandomShape()
 	{
-		transform.localEulerAngles=Vector3.zero;
+		SetShape(GameController.GetRandomEnum<SHAPE>());
+		myStartRotation=transform.localEulerAngles;
+	}
 
-		switch (GameController.GetRandomEnum<SHAPE>()) 
+	public void SetShapeFromString(string shapeString)
+	{
+		//CONE, CROSS, HEART, CUBE, SPHERE, STAR, TORUS
+		switch (shapeString)
+		{
+		case "CONE":
+			SetShape(SHAPE.CONE);
+			break;
+		case "CROSS":
+			SetShape(SHAPE.CROSS);
+			break;
+		case "HEART":
+			SetShape(SHAPE.HEART);
+			break;
+		case "CUBE":
+			SetShape(SHAPE.HOLLOWCUBE);
+			break;
+		case "SPHERE":
+			SetShape(SHAPE.ICOSPHERE);
+			break;
+		case "STAR":
+			SetShape(SHAPE.STAR);
+			break;
+		case "TORUS":
+			SetShape(SHAPE.TORUS);
+			break;
+		default:
+			Debug.Log("ERROR: ATTEMPTING TO SET PIECE TO INVALID SHAPE '"+shapeString+"'");
+			Application.Quit();
+			break;
+		}
+	}
+
+	//end public methods
+	
+	//private methods
+	private void SetShape(SHAPE shape)
+	{
+		transform.localEulerAngles=Vector3.zero;
+		
+		switch (shape) 
 		{
 		case SHAPE.CONE:
 			myFilter.mesh=coneMesh;
@@ -182,14 +224,11 @@ public class PieceController : MonoBehaviour {
 			myShape=SHAPE.TORUS;
 			break;
 		}
-
+		
 		myStartRotation=transform.localEulerAngles;
+
 	}
 
-	
-	//end public methods
-	
-	//private methods
 
 	//end private methods
 
