@@ -1,2 +1,2 @@
-- List of commands: HELP CHANGEPIECE
+- List of commands: HELP CHANGEPIECE SHOWPOSSIBLEMATCHES
 - Type "Help <Command>" to get help with a command

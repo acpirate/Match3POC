@@ -124,6 +124,47 @@ public class GameController : MonoBehaviour {
 	//end public methods
 
 	//private methods
+	public List<Swap> PossibleMatches()
+	{
+		List<Swap> foundMatches=new List<Swap>();
+
+		for(int colCounter=0;colCounter<BoardController.boardSize;colCounter++)
+		{
+			for (int rowCounter=0;rowCounter<BoardController.boardSize;rowCounter++)
+			{
+				//east swap check
+				if (colCounter<BoardController.boardSize-1) 
+				{
+					boardController.MakeSwap(board[colCounter,rowCounter],board[colCounter+1,rowCounter]);
+					if (GetThreeMatches().Count>0)
+					{
+						Swap tempSwap=new Swap();
+						tempSwap.piece1Coords=new Coords(colCounter,rowCounter);
+						tempSwap.piece2Coords=new Coords(colCounter+1,rowCounter);
+						foundMatches.Add(tempSwap);
+					}
+					boardController.MakeSwap(board[colCounter,rowCounter],board[colCounter+1,rowCounter]);
+				}
+				//south swap
+				if (rowCounter<BoardController.boardSize-1) 
+				{
+					boardController.MakeSwap(board[colCounter,rowCounter],board[colCounter,rowCounter+1]);
+					if (GetThreeMatches().Count>0)
+					{
+						Swap tempSwap=new Swap();
+						tempSwap.piece1Coords=new Coords(colCounter,rowCounter);
+						tempSwap.piece2Coords=new Coords(colCounter,rowCounter+1);
+						foundMatches.Add(tempSwap);
+					}
+					boardController.MakeSwap(board[colCounter,rowCounter],board[colCounter,rowCounter+1]);
+				}
+			}
+		}
+
+
+		return foundMatches;
+	}
+
 
 	void ToggleConsole()
 	{
@@ -175,6 +216,17 @@ public class GameController : MonoBehaviour {
 	// end private methods
 
 }
+
+public class Swap {
+	public Coords piece1Coords;
+	public Coords piece2Coords;
+
+	public string DisplayString()
+	{
+		return "piece1: "+piece1Coords.CoordString()+" piece2: "+piece2Coords.CoordString();
+	}
+}
+
 
 public class ThreeMatch {
 

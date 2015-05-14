@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class ConsoleController : MonoBehaviour {
@@ -83,12 +84,33 @@ public class ConsoleController : MonoBehaviour {
 				ChangePieceCommand(commandTokens);
 				break;
 			}
+			case "SHOWPOSSIBLEMATCHES":
+			{
+				ShowPossibleMatchesCommand();
+				break;
+			}
 			default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
 				break;
 			}
 
+		}
+	}
+
+	void ShowPossibleMatchesCommand()
+	{
+		List<Swap> possibleMatchList=gameController.PossibleMatches();
+
+		if (possibleMatchList.Count==0)
+		{
+			ConsoleOutputAdd("- no possible matches");
+			return;
+		}
+
+		foreach (Swap matchSwap in possibleMatchList)
+		{
+			ConsoleOutputAdd("- possible match found: "+matchSwap.DisplayString());
 		}
 	}
 
@@ -167,6 +189,9 @@ public class ConsoleController : MonoBehaviour {
 			case "CHANGEPIECE":
 				ConsoleOutputAdd("- Usage: CHANGEPIECE [0-7] [0-7] [piecetype]\n"+
 				                 "- Valid PieceTypes: CONE, CROSS, HEART, CUBE, SPHERE, STAR, TORUS");
+				break;
+			case "SHOWPOSSIBLEMATCHES":
+				ConsoleOutputAdd("- shows possible matches display the coordinates of the pieces needed to be swapped");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

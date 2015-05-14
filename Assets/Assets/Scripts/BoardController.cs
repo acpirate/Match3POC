@@ -166,7 +166,7 @@ public class BoardController : MonoBehaviour {
 
 	}
 
-	void MakeSwap(GameObject piece1, GameObject piece2)
+	public void MakeSwap(GameObject piece1, GameObject piece2)
 	{
 		Coords piece1Coords = GetIndexOf (piece1);
 		Coords piece2Coords = GetIndexOf (piece2);
