@@ -238,4 +238,11 @@ public class ThreeMatch {
 		matchStart=inCoords;
 		matchDirection=inMatchDirection;
 	}
+
+	public string ThreeMatchString()
+	{
+		string directionString="right";
+		if (matchDirection==MATCHDIRECTION.VERTICAL) directionString="up";
+		return matchStart.CoordString()+" "+directionString;
+	}
 }

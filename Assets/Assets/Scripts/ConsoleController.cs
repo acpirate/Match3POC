@@ -89,6 +89,11 @@ public class ConsoleController : MonoBehaviour {
 				ShowPossibleMatchesCommand();
 				break;
 			}
+			case "SHOWCURRENTMATCHES":
+			{
+				ShowCurrentMatchesCommand();
+				break;
+			}
 			default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -96,6 +101,23 @@ public class ConsoleController : MonoBehaviour {
 			}
 
 		}
+	}
+
+	void ShowCurrentMatchesCommand()
+	{
+		List<ThreeMatch> currentMatches=gameController.GetThreeMatches();
+
+		if (currentMatches.Count==0)
+		{
+			ConsoleOutputAdd("- no current matches");
+			return;
+		}
+
+		foreach(ThreeMatch match in currentMatches)
+		{
+			ConsoleOutputAdd("- current match: "+match.ThreeMatchString());
+		}
+
 	}
 
 	void ShowPossibleMatchesCommand()
@@ -110,7 +132,7 @@ public class ConsoleController : MonoBehaviour {
 
 		foreach (Swap matchSwap in possibleMatchList)
 		{
-			ConsoleOutputAdd("- possible match found: "+matchSwap.DisplayString());
+			ConsoleOutputAdd("- possible match: "+matchSwap.DisplayString());
 		}
 	}
 
@@ -192,6 +214,9 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SHOWPOSSIBLEMATCHES":
 				ConsoleOutputAdd("- shows possible matches display the coordinates of the pieces needed to be swapped");
+				break;
+			case "SHOWCURRENTMATCHES":
+				ConsoleOutputAdd("- shows the current matches coordinates and direction");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");
