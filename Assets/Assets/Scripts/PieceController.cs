@@ -8,6 +8,7 @@ public enum SHAPE {CONE, CROSS, HEART,
 public class PieceController : MonoBehaviour {
 
 	public GameObject selectedIndicator;
+	public GameObject removeVFX;
 
 	public Mesh coneMesh;
 	public Mesh crossMesh;
@@ -45,6 +46,7 @@ public class PieceController : MonoBehaviour {
 	private MeshRenderer myRenderer;
 	private MeshFilter myFilter;
 
+	private static bool quitting=false;
 
 	//built in unity methods
 
@@ -93,6 +95,16 @@ public class PieceController : MonoBehaviour {
 		boardController.TrySelect(gameObject);
 	}
 
+	void OnApplicationQuit()
+	{
+		quitting=true;
+	}
+
+	void OnDestroy()
+	{
+		if (!quitting)
+		Instantiate(removeVFX,transform.position,Quaternion.identity);
+	}
 	//end built in unity methods
 
 	//public methods

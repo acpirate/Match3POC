@@ -104,6 +104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectedIndicator: {fileID: 185580, guid: 235903262978b41ab849248160657f9b, type: 2}
+  removeVFX: {fileID: 198388, guid: cbff014ab70bc4e6ca21f1b9857ec454, type: 2}
   coneMesh: {fileID: 4300000, guid: 224d0c2e7d95f944783fe70f3d1a747c, type: 3}
   crossMesh: {fileID: 4300000, guid: d864bb766c0d70c4caaf90a107a321f9, type: 3}
   heartMesh: {fileID: 4300000, guid: d1483dc0557f4c044897d62ce90c4f8f, type: 3}

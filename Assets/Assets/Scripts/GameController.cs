@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public enum MATCHDIRECTION {HORIZONTAL, VERTICAL};
-public enum GAMESTATE {SELECTION, MOVING, CONSOLE};
+public enum GAMESTATE {SELECTION, MOVING, MATCHFX, CONSOLE};
 
 
 public class GameController : MonoBehaviour {

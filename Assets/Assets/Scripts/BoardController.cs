@@ -9,6 +9,7 @@ public class BoardController : MonoBehaviour {
 	public static readonly int boardSize=8;
 
 	public GameObject piece;
+	public GameObject removeVFX;
 
 	public float boardPieceOffest = 30f;
 	public float boardPieceSpacing= 60f;
@@ -186,6 +187,7 @@ public class BoardController : MonoBehaviour {
 		{
 			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 			{
+
 				DestroyImmediate(board[match.matchStart.x,match.matchStart.y]);
 				DestroyImmediate(board[match.matchStart.x+1,match.matchStart.y]);
 				DestroyImmediate(board[match.matchStart.x+2,match.matchStart.y]);
