@@ -94,13 +94,23 @@ public class ConsoleController : MonoBehaviour {
 				ShowCurrentMatchesCommand();
 				break;
 			}
-			default:
+			case "RESETBOARD":
+			{
+				ResetBoardCommand(commandTokens);
+				break;
+			}
+		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
 				break;
 			}
 
 		}
+	}
+
+	void ResetBoardCommand(string[] commandTokens)
+	{
+		gameController.ResetBoard();
 	}
 
 	void ShowCurrentMatchesCommand()
@@ -217,6 +227,10 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SHOWCURRENTMATCHES":
 				ConsoleOutputAdd("- shows the current matches coordinates and direction");
+				break;
+			case "RESETBOARD":
+				ConsoleOutputAdd("- destroys the board and re-rolls the pieces\n" +
+								 "- new board will have no current matches and at least 1 possible match");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

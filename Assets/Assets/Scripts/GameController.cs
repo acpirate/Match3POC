@@ -10,6 +10,8 @@ public enum GAMESTATE {SELECTION, MOVING, MATCHFX, CONSOLE};
 public class GameController : MonoBehaviour {
 
 	public static GAMESTATE gameState;
+	public static bool quitting=false;
+	public static bool resetting=false;
 
 	public GameObject console;
 
@@ -70,9 +72,22 @@ public class GameController : MonoBehaviour {
 
 		//if (GameController.gameState==GAMESTATE.MOVING && !(ArePiecesMoving())) GameController.gameState=GAMESTATE.SELECTION;
 	}
+
+	void OnApplicationQuit()
+	{
+		quitting=true;
+	}
+
 	//end unity builtin methods
 
 	//public methods
+
+	public void ResetBoard()
+	{
+		resetting=true;
+		boardController.CreateBoard();
+		resetting=false;
+	}
 
 	public List<ThreeMatch> GetThreeMatches()
 	{

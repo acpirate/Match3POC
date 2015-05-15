@@ -40,23 +40,39 @@ public class BoardController : MonoBehaviour {
 
 	//private methods
 
-	void CreateBoard()
+	
+	public void CreateBoard()
+	{
+		int possibleMatches=0;
+		while (possibleMatches<1)
+		{
+			NewBoard();
+			AvoidCurrentMatches();
+			possibleMatches=gameController.PossibleMatches().Count;
+		}
+	}
+
+	void NewBoard()
 	{
 		for(int colCounter=0;colCounter<boardSize;colCounter++)
 		{
 			for (int rowCounter=0;rowCounter<boardSize;rowCounter++)
 			{
+				if ((board[colCounter,rowCounter])!=null) DestroyImmediate(board[colCounter,rowCounter]);
 				board[colCounter,rowCounter] = Instantiate(piece);
 				SnapToWorldPosition(colCounter,rowCounter);
 			}
 		}
+	}
 
+	void AvoidCurrentMatches()
+	{
 		// adjust board until there are no matches
 		List<ThreeMatch> matchList=gameController.GetThreeMatches();
-
+		
 		//Debug.Log(matchList.Count.ToString());
 		int matchResetCounter=0;
-
+		
 		while (matchList.Count>0)
 		{
 			matchResetCounter++;

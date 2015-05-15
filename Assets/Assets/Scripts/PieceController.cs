@@ -45,8 +45,7 @@ public class PieceController : MonoBehaviour {
 	private BoardController boardController;
 	private MeshRenderer myRenderer;
 	private MeshFilter myFilter;
-
-	private static bool quitting=false;
+	
 
 	//built in unity methods
 
@@ -95,14 +94,9 @@ public class PieceController : MonoBehaviour {
 		boardController.TrySelect(gameObject);
 	}
 
-	void OnApplicationQuit()
-	{
-		quitting=true;
-	}
-
 	void OnDestroy()
 	{
-		if (!quitting)
+		if (!(GameController.quitting || GameController.resetting))
 		Instantiate(removeVFX,transform.position,Quaternion.identity);
 	}
 	//end built in unity methods
