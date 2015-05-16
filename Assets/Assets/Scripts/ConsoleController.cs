@@ -19,8 +19,11 @@ public class ConsoleController : MonoBehaviour {
 	}
 
 	void OnEnable()
-	{
+	{	
+		Debug.Log("consoleenabled");
 		consoleInput.ActivateInputField();
+		consoleInput.Select();
+		consoleInput.text="";
 	}
 
 	// Use this for initialization

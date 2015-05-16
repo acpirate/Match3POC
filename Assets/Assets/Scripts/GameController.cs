@@ -36,7 +36,7 @@ public class GameController : MonoBehaviour {
 	
 	void Awake() 
 	{
-		gameState=GAMESTATE.CONSOLE;
+		gameState=GAMESTATE.SELECTION;
 		boardController=GameObject.FindGameObjectWithTag("Board").GetComponent<BoardController>();
 
 	}
