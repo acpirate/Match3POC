@@ -14,9 +14,12 @@ public class GameController : MonoBehaviour {
 	public static bool resetting=false;
 
 	public GameObject console;
+	public Text scoreDisplay;
 
 	BoardController boardController;
 	GameObject[,] board;
+
+	private int score;
 
 	//helper methods
 
@@ -81,6 +84,17 @@ public class GameController : MonoBehaviour {
 	//end unity builtin methods
 
 	//public methods
+
+	public void AddScore()
+	{
+		score+=10;
+		SetScoreDisplay();
+	}
+
+	void SetScoreDisplay() 
+	{
+		scoreDisplay.text="Score: "+score.ToString();
+	}
 
 	public void ResetBoard()
 	{

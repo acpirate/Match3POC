@@ -203,22 +203,30 @@ public class BoardController : MonoBehaviour {
 		{
 			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 			{
-
-				DestroyImmediate(board[match.matchStart.x,match.matchStart.y]);
-				DestroyImmediate(board[match.matchStart.x+1,match.matchStart.y]);
-				DestroyImmediate(board[match.matchStart.x+2,match.matchStart.y]);
+				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y));
+				DestroyAndScore(new Coords(match.matchStart.x+1,match.matchStart.y));
+				DestroyAndScore(new Coords(match.matchStart.x+2,match.matchStart.y));
 			}
 			if (match.matchDirection==MATCHDIRECTION.VERTICAL)
 			{
-				DestroyImmediate(board[match.matchStart.x,match.matchStart.y]);
-				DestroyImmediate(board[match.matchStart.x,match.matchStart.y+1]);
-				DestroyImmediate(board[match.matchStart.x,match.matchStart.y+2]);
+				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y));
+				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y+1));
+				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y+2));
 			}
 		}
 
 		MoveDownAndReplacePieces();
 		AnimateMove();
 
+	}
+
+	void DestroyAndScore(Coords pieceToProcess)
+	{
+		if (board[pieceToProcess.x,pieceToProcess.y]!=null)
+		{
+			DestroyImmediate(board[pieceToProcess.x,pieceToProcess.y]);
+			gameController.AddScore();
+		}
 	}
 
 	void AnimateMove()
