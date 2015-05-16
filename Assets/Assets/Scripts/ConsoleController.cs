@@ -21,22 +21,31 @@ public class ConsoleController : MonoBehaviour {
 	void OnEnable()
 	{	
 		Debug.Log("consoleenabled");
+		//consoleInput.ActivateInputField();
 		consoleInput.ActivateInputField();
-		consoleInput.Select();
 		consoleInput.text="";
-	}
+		//EventSystem.current.SetSelectedGameObject(consoleInput.gameObject, null);
+		//consoleInput.OnPointerClick(new PointerEventData(EventSystem.current));
 
+	}
+	
 	// Use this for initialization
 	void Start () {
 		InputField.SubmitEvent submitEvent = new InputField.SubmitEvent();
 		submitEvent.AddListener(ConsoleCommand);
 		consoleInput.onEndEdit = submitEvent;
 		consoleInput.ActivateInputField();
+		MakeInputActive();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
+	}
+
+	public void MakeInputActive()
+	{
+		consoleInput.ActivateInputField();
 	}
 
 	void ConsoleCommand(string commandString)

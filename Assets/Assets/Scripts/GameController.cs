@@ -205,6 +205,7 @@ public class GameController : MonoBehaviour {
 		else 
 		{
 			console.SetActive(true);
+			console.GetComponent<ConsoleController>().MakeInputActive();
 			gameState=GAMESTATE.CONSOLE;
 		}
 	}
