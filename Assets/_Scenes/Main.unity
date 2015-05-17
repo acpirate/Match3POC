@@ -551,7 +551,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Type Help or ? for help
+  m_Text: Type Help or ? for help - press enter if you can't type
 --- !u!222 &685602623
 CanvasRenderer:
   m_ObjectHideFlags: 0

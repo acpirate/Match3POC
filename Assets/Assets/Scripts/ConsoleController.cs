@@ -20,7 +20,7 @@ public class ConsoleController : MonoBehaviour {
 
 	void OnEnable()
 	{	
-		Debug.Log("consoleenabled");
+		//Debug.Log("consoleenabled");
 		//consoleInput.ActivateInputField();
 		consoleInput.ActivateInputField();
 		consoleInput.text="";

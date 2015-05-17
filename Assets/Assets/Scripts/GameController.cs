@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public enum MATCHDIRECTION {HORIZONTAL, VERTICAL};
-public enum GAMESTATE {SELECTION, MOVING, MATCHFX, CONSOLE};
+public enum GAMESTATE {SELECTION, MOVING, CONSOLE, ENDGAME};
 
 
 public class GameController : MonoBehaviour {
@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour {
 	BoardController boardController;
 	GameObject[,] board;
 
-	private int score;
+	public static int score=0;
 
 	//helper methods
 
@@ -43,6 +43,7 @@ public class GameController : MonoBehaviour {
 
 	void Start()
 	{
+		score=0;
 		board=boardController.GetBoard();
 	}
 
@@ -218,10 +219,20 @@ public class GameController : MonoBehaviour {
 		{
 			boardController.RemoveMatches(matches);
 		}
+		else if (PossibleMatches().Count==0)
+		{
+			EndGame();
+		}
 		else
 		{
 			gameState=GAMESTATE.SELECTION;
 		}
+	}
+
+	void EndGame()
+	{
+		gameState=GAMESTATE.ENDGAME;
+		Application.LoadLevel("GameSelect");
 	}
 
 	bool ArePiecesMoving()

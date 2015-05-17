@@ -96,7 +96,7 @@ public class PieceController : MonoBehaviour {
 
 	void OnDestroy()
 	{
-		if (!(GameController.quitting || GameController.resetting))
+		if (!(GameController.quitting || GameController.resetting || GameController.gameState==GAMESTATE.ENDGAME))
 		Instantiate(removeVFX,transform.position,Quaternion.identity);
 	}
 	//end built in unity methods
