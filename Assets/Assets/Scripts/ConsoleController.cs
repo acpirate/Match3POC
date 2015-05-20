@@ -111,6 +111,11 @@ public class ConsoleController : MonoBehaviour {
 				ResetBoardCommand(commandTokens);
 				break;
 			}
+			case "ENDGAME":
+			{
+				EndGameCommand();
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -118,6 +123,11 @@ public class ConsoleController : MonoBehaviour {
 			}
 
 		}
+	}
+
+	void EndGameCommand()
+	{
+		gameController.EndGame();
 	}
 
 	void ResetBoardCommand(string[] commandTokens)
@@ -243,6 +253,9 @@ public class ConsoleController : MonoBehaviour {
 			case "RESETBOARD":
 				ConsoleOutputAdd("- destroys the board and re-rolls the pieces\n" +
 								 "- new board will have no current matches and at least 1 possible match");
+				break;
+			case "ENDGAME":
+				ConsoleOutputAdd("- ends the game");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

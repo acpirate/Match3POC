@@ -229,7 +229,7 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	void EndGame()
+	public void EndGame()
 	{
 		gameState=GAMESTATE.ENDGAME;
 		Application.LoadLevel("GameSelect");
