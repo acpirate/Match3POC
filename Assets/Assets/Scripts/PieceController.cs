@@ -76,15 +76,13 @@ public class PieceController : MonoBehaviour {
 
 	void OnMouseEnter() 
 	{
-		if (GameController.gameState==GAMESTATE.SELECTION)
-		myBody.AddTorque(new Vector3(0,rotateSpeed,0));
+		StartSpin();
 		//Debug.Log(boardController.GetIndexOf(gameObject).CoordString());
 	}
 
 	void OnMouseExit() 
 	{
-		myBody.angularVelocity=new Vector3(0,0,0);
-		transform.localEulerAngles=myStartRotation;
+		StopSpin();
 	}
 
 	void OnMouseDown()
@@ -103,6 +101,20 @@ public class PieceController : MonoBehaviour {
 	//end built in unity methods
 
 	//public methods
+
+	public void StartSpin()
+	{
+		boardController.StopAllSpin();
+		if (GameController.gameState==GAMESTATE.SELECTION)
+			myBody.AddTorque(new Vector3(0,rotateSpeed,0));
+	}
+
+	public void StopSpin()
+	{
+		myBody.angularVelocity=new Vector3(0,0,0);
+		transform.localEulerAngles=myStartRotation;
+	}
+
 
 	public void SetSelected(bool inSelected)
 	{

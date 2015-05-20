@@ -38,8 +38,13 @@ public class BoardController : MonoBehaviour {
 
 	//end unity default methods
 
-	//private methods
-
+	public void StopAllSpin()
+	{
+			foreach (GameObject piece in board)
+			{
+				piece.GetComponent<PieceController>().StopSpin();
+			}
+	}
 	
 	public void CreateBoard()
 	{
