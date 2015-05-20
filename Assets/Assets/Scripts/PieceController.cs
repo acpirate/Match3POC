@@ -9,6 +9,7 @@ public class PieceController : MonoBehaviour {
 
 	public GameObject selectedIndicator;
 	public GameObject removeVFX;
+	public GameObject scoreFX;
 
 	public Mesh coneMesh;
 	public Mesh crossMesh;
@@ -124,6 +125,17 @@ public class PieceController : MonoBehaviour {
 	public void SetMoveTargetPosition(Vector3 inMoveTarget)
 	{
 		moveTargetPosition=inMoveTarget;
+	}
+
+	public void ShowScore(int scoreToShow)
+	{
+		Vector3 scorePostion=new Vector3(transform.position.x, transform.position.y, -100f);
+
+		GameObject scoreContainer=(GameObject) Instantiate(scoreFX,scorePostion,Quaternion.identity);
+
+		ScorePopupController scoreController=scoreContainer.GetComponent<ScorePopupController>();
+		scoreController.SetScore(scoreToShow);
+		scoreController.SetColor(myRenderer.material.color);
 	}
 
 	public void AnimateMove()

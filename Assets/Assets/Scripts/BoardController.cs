@@ -222,9 +222,12 @@ public class BoardController : MonoBehaviour {
 
 	void DestroyAndScore(Coords pieceToProcess)
 	{
-		if (board[pieceToProcess.x,pieceToProcess.y]!=null)
+		GameObject pieceStorage=board[pieceToProcess.x,pieceToProcess.y];
+
+		if (pieceStorage!=null)
 		{
-			DestroyImmediate(board[pieceToProcess.x,pieceToProcess.y]);
+			pieceStorage.GetComponent<PieceController>().ShowScore(10);
+			DestroyImmediate(pieceStorage);
 			gameController.AddScore();
 		}
 	}
