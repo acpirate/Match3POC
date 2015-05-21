@@ -88,9 +88,46 @@ public class GameController : MonoBehaviour {
 
 	//public methods
 
-	public void AddScore()
+
+	public void AttemptMatch(GameObject piece1, GameObject piece2)
 	{
-		score+=10;
+		
+		boardController.MakeSwap(piece1,piece2);
+		
+		List<ThreeMatch> tempMatchList=GetThreeMatches();
+		
+		if (tempMatchList.Count>0) 
+		{
+			ScoreMatches(tempMatchList);
+			boardController.RemoveMatches(tempMatchList);
+		}
+		else 
+		{
+			boardController.MakeSwap(piece1,piece2);
+		}
+		
+		GameController.gameState=GAMESTATE.MOVING;
+		
+	}
+
+	void ScoreMatches(List<ThreeMatch> matches)
+	{
+		foreach(ThreeMatch match in matches)
+		{
+			int tempScore=30;
+			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+				board[match.matchStart.x+1,match.matchStart.y].GetComponent<PieceController>().ShowScore(tempScore);
+			else 
+				board[match.matchStart.x,match.matchStart.y+1].GetComponent<PieceController>().ShowScore(tempScore);
+
+			AddScore(tempScore);
+		}
+	}
+
+
+	public void AddScore(int scoreToAdd)
+	{
+		score+=scoreToAdd;
 		SetScoreDisplay();
 	}
 
@@ -219,6 +256,7 @@ public class GameController : MonoBehaviour {
 
 		if (matches.Count>0) 
 		{
+			ScoreMatches(matches);
 			boardController.RemoveMatches(matches);
 		}
 		else if (PossibleMatches().Count==0)

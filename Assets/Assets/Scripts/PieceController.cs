@@ -46,7 +46,7 @@ public class PieceController : MonoBehaviour {
 	private BoardController boardController;
 	private MeshRenderer myRenderer;
 	private MeshFilter myFilter;
-	
+
 
 	//built in unity methods
 
@@ -90,7 +90,12 @@ public class PieceController : MonoBehaviour {
 		/*boardController.UnselectAll();
 		boardController.GetNeighbors(gameObject);
 		SetSelected(!selected);*/
-		boardController.TrySelect(gameObject);
+		if (selected)
+		{
+			SetSelected(false);
+			return;
+		}
+		boardController.ActivatePiece(gameObject);
 	}
 
 	void OnDestroy()

@@ -117,6 +117,29 @@ public class BoardController : MonoBehaviour {
 		return piecePosition;
 	}
 
+	public void ActivatePiece(GameObject pieceToActivate)
+	{
+		//break out if we aren't in the selection state
+		if (!(GameController.gameState==GAMESTATE.SELECTION)) return;
+		
+		PieceController pieceController = pieceToActivate.GetComponent<PieceController>();
+		
+		//check to see if each neighbor is selected, if so break out and try to swap them
+		foreach (GameObject neighbor in GetNeighbors(pieceToActivate))
+		{
+			if (neighbor.gameObject.GetComponent<PieceController>().GetSelected())
+			{
+				UnselectAll();
+				gameController.AttemptMatch(pieceToActivate,neighbor);
+				return;
+			}
+		}
+		
+		//finally if none of the other conditions are true unselect all of the pieces and select the input piece
+		UnselectAll();
+		pieceController.SetSelected(true);
+	}
+
 	public List<GameObject> GetNeighbors(GameObject queriedPiece)
 	{
 		List<GameObject> returnNeighbors = new List<GameObject>();
@@ -166,28 +189,6 @@ public class BoardController : MonoBehaviour {
 		return returnCoords;
 	}
 
-	void AttemptSwapPieces(GameObject piece1, GameObject piece2)
-	{
-
-		UnselectAll();
-
-		MakeSwap(piece1,piece2);
-
-		List<ThreeMatch> tempMatchList=gameController.GetThreeMatches();
-
-		if (tempMatchList.Count>0) 
-		{
-			RemoveMatches(tempMatchList);
-		}
-		else 
-		{
-			MakeSwap(piece1,piece2);
-		}
-
-		GameController.gameState=GAMESTATE.MOVING;
-
-	}
-
 	public void MakeSwap(GameObject piece1, GameObject piece2)
 	{
 		Coords piece1Coords = GetIndexOf (piece1);
@@ -208,15 +209,15 @@ public class BoardController : MonoBehaviour {
 		{
 			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 			{
-				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y));
-				DestroyAndScore(new Coords(match.matchStart.x+1,match.matchStart.y));
-				DestroyAndScore(new Coords(match.matchStart.x+2,match.matchStart.y));
+				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y));
+				RemovePiece(new Coords(match.matchStart.x+1,match.matchStart.y));
+				RemovePiece(new Coords(match.matchStart.x+2,match.matchStart.y));
 			}
 			if (match.matchDirection==MATCHDIRECTION.VERTICAL)
 			{
-				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y));
-				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y+1));
-				DestroyAndScore(new Coords(match.matchStart.x,match.matchStart.y+2));
+				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y));
+				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y+1));
+				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y+2));
 			}
 		}
 
@@ -225,15 +226,13 @@ public class BoardController : MonoBehaviour {
 
 	}
 
-	void DestroyAndScore(Coords pieceToProcess)
+	void RemovePiece(Coords pieceToProcess)
 	{
 		GameObject pieceStorage=board[pieceToProcess.x,pieceToProcess.y];
 
 		if (pieceStorage!=null)
 		{
-			pieceStorage.GetComponent<PieceController>().ShowScore(10);
 			DestroyImmediate(pieceStorage);
-			gameController.AddScore();
 		}
 	}
 
@@ -309,35 +308,7 @@ public class BoardController : MonoBehaviour {
 		}
 	}
 
-	public void TrySelect(GameObject pieceToTryToSelect)
-	{
-		//break out if we aren't in the selection state
-		if (!(GameController.gameState==GAMESTATE.SELECTION)) return;
 
-		PieceController pieceController = pieceToTryToSelect.GetComponent<PieceController>();
-
-		//unselect the piece if it is currently selected and break out
-		if (pieceController.GetSelected())
-		{
-			pieceController.SetSelected(false);
-			return;
-		}
-
-		//check to see if each neighbor is selected, if so break out and try to swap them
-		foreach (GameObject neighbor in GetNeighbors(pieceToTryToSelect))
-		{
-			if (neighbor.gameObject.GetComponent<PieceController>().GetSelected())
-			{
-				AttemptSwapPieces(pieceToTryToSelect,neighbor);
-				return;
-			}
-		}
-
-		//finally if none of the other conditions are true unselect all of the pieces and select the input piece
-		UnselectAll();
-		pieceController.SetSelected(true);
-
-	}
 
 	public GameObject[,] GetBoard()
 	{
