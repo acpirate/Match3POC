@@ -12,14 +12,16 @@ public class GameController : MonoBehaviour {
 	public static GAMESTATE gameState;
 	public static bool quitting=false;
 	public static bool resetting=false;
+	public static int highScore=0;
+	public static int score=0;
+
 
 	public GameObject console;
 	public Text scoreDisplay;
 
 	BoardController boardController;
 	GameObject[,] board;
-
-	public static int score=0;
+	
 
 	//helper methods
 
@@ -231,6 +233,7 @@ public class GameController : MonoBehaviour {
 
 	public void EndGame()
 	{
+		if (score>highScore) highScore=score;
 		gameState=GAMESTATE.ENDGAME;
 		Application.LoadLevel("GameSelect");
 	}

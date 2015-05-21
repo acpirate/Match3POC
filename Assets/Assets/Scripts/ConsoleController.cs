@@ -116,6 +116,11 @@ public class ConsoleController : MonoBehaviour {
 				EndGameCommand();
 				break;
 			}
+			case "SETHIGHSCORE":
+			{
+				SetHighScoreCommandValidate(commandTokens);
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -123,6 +128,35 @@ public class ConsoleController : MonoBehaviour {
 			}
 
 		}
+	}
+
+	void SetHighScoreCommand(int highScoreToSet)
+	{
+		GameController.highScore=highScoreToSet;
+		ConsoleOutputAdd("Setting high score to "+highScoreToSet.ToString());
+	}
+
+	void SetHighScoreCommandValidate(string[] commandTokens)
+	{
+		string usageInfo="- Usage: SETHIGHSCORE <Score>";
+
+		//validate number of arguments
+		if (commandTokens.Length!=2) {
+			ConsoleOutputAdd("- Invalid number of arguments to sethighscore\n"+
+			                 usageInfo);
+			return;
+
+		}
+
+		//validate int
+		int tempHighScore=0;
+		if (!(int.TryParse(commandTokens[1],out tempHighScore)))
+		{
+			ConsoleOutputAdd("- Invalid highscore value: '"+commandTokens[1]+"'\n"+usageInfo);
+			return;
+		}
+
+		SetHighScoreCommand(tempHighScore);
 	}
 
 	void EndGameCommand()
@@ -256,6 +290,9 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "ENDGAME":
 				ConsoleOutputAdd("- ends the game");
+				break;
+			case "SETHIGHSCORE":
+				ConsoleOutputAdd("- sets the high score");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");
