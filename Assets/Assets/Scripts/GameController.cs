@@ -18,6 +18,9 @@ public class GameController : MonoBehaviour {
 
 	public GameObject console;
 	public Text scoreDisplay;
+	public Text endScoreDisplay;
+	public GameObject gameEndDisplay;
+	public Text highScoreDisplay;
 
 	BoardController boardController;
 	GameObject[,] board;
@@ -73,6 +76,9 @@ public class GameController : MonoBehaviour {
 				{
 					ToggleConsole();
 				}
+			break;
+			case GAMESTATE.ENDGAME:
+				if (Input.GetMouseButtonDown(0)) Application.LoadLevel("GameSelect");
 			break;
 		}
 
@@ -271,9 +277,20 @@ public class GameController : MonoBehaviour {
 
 	public void EndGame()
 	{
-		if (score>highScore) highScore=score;
+		if (gameState==GAMESTATE.CONSOLE)
+			ToggleConsole();
+		string highScoreString="Highscore: "+highScore.ToString();
+		if (score>highScore) { 
+			highScore=score;
+			highScoreString="New High Score!";
+		}
+
+		highScoreDisplay.text=highScoreString;
 		gameState=GAMESTATE.ENDGAME;
-		Application.LoadLevel("GameSelect");
+		scoreDisplay.enabled=false;
+		gameEndDisplay.SetActive(true);
+		endScoreDisplay.text="Score: "+score;
+		//Application.LoadLevel("GameSelect");
 	}
 
 	bool ArePiecesMoving()
