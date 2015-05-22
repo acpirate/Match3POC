@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public enum MATCHDIRECTION {HORIZONTAL, VERTICAL};
-public enum GAMESTATE {SELECTION, MOVING, CONSOLE, ENDGAME};
+public enum GAMESTATE {SELECTION, TRYMATCHMOVE, MOVING, FAILMATCHMOVE, CONSOLE, ENDGAME};
 
 
 public class GameController : MonoBehaviour {
@@ -22,10 +22,12 @@ public class GameController : MonoBehaviour {
 	public GameObject gameEndDisplay;
 	public Text highScoreDisplay;
 
+
 	BoardController boardController;
 	GameObject[,] board;
 	
-
+	private GameObject piece1Tried;
+	private GameObject piece2Tried;
 	//helper methods
 
 	//get a random item of the given type
@@ -63,6 +65,14 @@ public class GameController : MonoBehaviour {
 					PiecesStoppedMoving();
 				}
 			break;
+			case GAMESTATE.TRYMATCHMOVE:
+				if (!ArePiecesMoving())
+					TryMatchMoveStop();
+			break;
+			case GAMESTATE.FAILMATCHMOVE:
+				if (!ArePiecesMoving())
+					FailMatchMoveStop();
+			break;
 			case GAMESTATE.SELECTION:
 				
 				if (Input.GetKeyDown(KeyCode.Tab)) 
@@ -85,6 +95,29 @@ public class GameController : MonoBehaviour {
 		//if (GameController.gameState==GAMESTATE.MOVING && !(ArePiecesMoving())) GameController.gameState=GAMESTATE.SELECTION;
 	}
 
+	void TryMatchMoveStop()
+	{
+		List<ThreeMatch> tempMatchList=GetThreeMatches();
+		
+		if (tempMatchList.Count>0) 
+		{
+			ScoreMatches(tempMatchList);
+			boardController.RemoveMatches(tempMatchList);
+			GameController.gameState=GAMESTATE.MOVING;
+		}
+		else 
+		{
+			boardController.AnimateMovePairPieces(piece1Tried,piece2Tried,GAMESTATE.FAILMATCHMOVE);
+		}
+		
+
+	}
+
+	void FailMatchMoveStop()
+	{
+		gameState=GAMESTATE.SELECTION;
+	}
+
 	void OnApplicationQuit()
 	{
 		quitting=true;
@@ -95,11 +128,23 @@ public class GameController : MonoBehaviour {
 	//public methods
 
 
-	public void AttemptMatch(GameObject piece1, GameObject piece2)
+/*	public void MoveActivePices(GameObject piece1, GameObject piece2)
 	{
-		
+		gameState=GAMESTATE.TRYMATCHMOVE;
 		boardController.MakeSwap(piece1,piece2);
-		
+
+		PieceController piece1Controller=piece1.GetComponent<PieceController>();
+		PieceController piece2Controller=piece2.GetComponent<PieceController>();
+
+		piece1Controller.animateMove=true;
+		piece2Controller.animateMove=true;
+
+		Vector3 tempDestination=Vector3.zero;
+
+		tempDestination=boardController.CalculateWorldPosition(boardController
+
+		/*
+
 		List<ThreeMatch> tempMatchList=GetThreeMatches();
 		
 		if (tempMatchList.Count>0) 
@@ -114,6 +159,13 @@ public class GameController : MonoBehaviour {
 		
 		GameController.gameState=GAMESTATE.MOVING;
 		
+	}*/
+
+	public void SetTriedPieces(GameObject piece1, GameObject piece2)
+	{
+		piece1Tried=piece1;
+		piece2Tried=piece2;
+
 	}
 
 	void ScoreMatches(List<ThreeMatch> matches)

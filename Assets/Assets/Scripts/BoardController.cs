@@ -10,6 +10,7 @@ public class BoardController : MonoBehaviour {
 
 	public GameObject piece;
 	public GameObject removeVFX;
+	public GameObject matchFailFX;
 
 	public float boardPieceOffest = 30f;
 	public float boardPieceSpacing= 60f;
@@ -107,7 +108,7 @@ public class BoardController : MonoBehaviour {
 
 	}
 
-	Vector3 CalculateWorldPosition(int col, int row)
+	public Vector3 CalculateWorldPosition(int col, int row)
 	{
 		float xPosition = boardCorner + col * boardPieceSpacing;
 		float yPosition = boardCorner + row * boardPieceSpacing;
@@ -129,8 +130,9 @@ public class BoardController : MonoBehaviour {
 		{
 			if (neighbor.gameObject.GetComponent<PieceController>().GetSelected())
 			{
+				AnimateMovePairPieces(pieceToActivate,neighbor, GAMESTATE.TRYMATCHMOVE);
 				UnselectAll();
-				gameController.AttemptMatch(pieceToActivate,neighbor);
+				//gameController.MoveActivePices(pieceToActivate,neighbor);
 				return;
 			}
 		}
@@ -138,6 +140,34 @@ public class BoardController : MonoBehaviour {
 		//finally if none of the other conditions are true unselect all of the pieces and select the input piece
 		UnselectAll();
 		pieceController.SetSelected(true);
+	}
+
+	public void AnimateMovePairPieces(GameObject piece1, GameObject piece2, GAMESTATE stateToSet)
+	{
+		Coords piece1index=GetIndexOf(piece1);
+		Coords piece2index=GetIndexOf(piece2);
+		PieceController piece1Controller=piece1.GetComponent<PieceController>();
+		PieceController piece2Controller=piece2.GetComponent<PieceController>();
+
+		GameController.gameState=stateToSet;
+
+		piece1Controller.animateMove=true;
+		piece2Controller.animateMove=true;
+
+		piece1Controller.SetMoveTargetPosition(CalculateWorldPosition(piece2index.x,piece2index.y));
+		piece2Controller.SetMoveTargetPosition(CalculateWorldPosition(piece1index.x,piece1index.y));
+
+		gameController.SetTriedPieces(piece1,piece2);
+
+		MakeSwap(piece1,piece2);
+
+		if (stateToSet==GAMESTATE.FAILMATCHMOVE)
+		{
+			Vector3 failLocation=(piece1.transform.position+(piece2.transform.position-piece1.transform.position)*.5f);
+			failLocation.z=-100f;
+			Instantiate(matchFailFX,failLocation,Quaternion.identity);
+		}
+
 	}
 
 	public List<GameObject> GetNeighbors(GameObject queriedPiece)
@@ -198,8 +228,8 @@ public class BoardController : MonoBehaviour {
 		board[piece1Coords.x,piece1Coords.y]=piece2;
 		board[piece2Coords.x,piece2Coords.y]=tempPiece;
 
-		SnapToWorldPosition(piece1Coords.x,piece1Coords.y);
-		SnapToWorldPosition(piece2Coords.x,piece2Coords.y);
+		//SnapToWorldPosition(piece1Coords.x,piece1Coords.y);
+		//SnapToWorldPosition(piece2Coords.x,piece2Coords.y);
 
 	}
 	
