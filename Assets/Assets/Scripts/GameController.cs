@@ -322,7 +322,8 @@ public class GameController : MonoBehaviour {
 			ToggleConsole();
 		string highScoreString="Highscore: "+highScore.ToString();
 		if (score>highScore) { 
-			highScore=score;
+			PlayerPrefs.SetInt("Highscore", score);
+			PlayerPrefs.Save();
 			highScoreString="New High Score!";
 		}
 

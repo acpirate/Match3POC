@@ -8,7 +8,14 @@ public class GameSelectController : MonoBehaviour {
 	public Text highScoreDisplay;
 
 	// Use this for initialization
-	void Start () {
+
+	void Awake() 
+	{
+		GameController.highScore=PlayerPrefs.GetInt("Highscore");
+	}
+
+	void Start () 
+	{
 
 		scoreDisplay.text="Last Score:"+GameController.score.ToString();
 		highScoreDisplay.text="High Score:"+GameController.highScore.ToString();
