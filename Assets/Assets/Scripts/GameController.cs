@@ -21,13 +21,18 @@ public class GameController : MonoBehaviour {
 	public Text endScoreDisplay;
 	public GameObject gameEndDisplay;
 	public Text highScoreDisplay;
+	public float hintTime=3f;
 
+	[HideInInspector]
+	public bool hintsShowing=false;
 
 	BoardController boardController;
 	GameObject[,] board;
 	
 	private GameObject piece1Tried;
 	private GameObject piece2Tried;
+	[HideInInspector]
+	public float hintCountdown;
 	//helper methods
 
 	//get a random item of the given type
@@ -37,6 +42,7 @@ public class GameController : MonoBehaviour {
 		T V = (T)A.GetValue(UnityEngine.Random.Range(0,A.Length));
 		return V;
 	}
+	
 	//end helper methods
 
 	//unity builtin methods
@@ -46,6 +52,7 @@ public class GameController : MonoBehaviour {
 		gameState=GAMESTATE.SELECTION;
 		boardController=GameObject.FindGameObjectWithTag("Board").GetComponent<BoardController>();
 
+		hintCountdown=hintTime;
 	}
 
 	void Start()
@@ -79,7 +86,12 @@ public class GameController : MonoBehaviour {
 				{
 					ToggleConsole();
 				}
-			break;
+				if (!hintsShowing)
+				{
+					hintCountdown-=Time.deltaTime;
+					if (hintCountdown<=0) HintDisplay();
+				}	
+				break;
 			case GAMESTATE.CONSOLE:
 				
 				if (Input.GetKeyDown(KeyCode.Tab)) 
@@ -109,8 +121,19 @@ public class GameController : MonoBehaviour {
 		{
 			boardController.AnimateMovePairPieces(piece1Tried,piece2Tried,GAMESTATE.FAILMATCHMOVE);
 		}
-		
+	}
 
+	void HintDisplay()
+	{
+		hintsShowing=true;
+		hintCountdown=hintTime;
+		List<Swap> possibleMatches = PossibleMatches();
+		Swap swapHint=possibleMatches[Random.Range(0,possibleMatches.Count)];
+
+		GameObject hintPiece1=board[swapHint.piece1Coords.x,swapHint.piece1Coords.y];
+		GameObject hintpiece2=board[swapHint.piece2Coords.x,swapHint.piece2Coords.y];
+
+		boardController.HintsOn(hintPiece1,hintpiece2);
 	}
 
 	void FailMatchMoveStop()
@@ -126,40 +149,6 @@ public class GameController : MonoBehaviour {
 	//end unity builtin methods
 
 	//public methods
-
-
-/*	public void MoveActivePices(GameObject piece1, GameObject piece2)
-	{
-		gameState=GAMESTATE.TRYMATCHMOVE;
-		boardController.MakeSwap(piece1,piece2);
-
-		PieceController piece1Controller=piece1.GetComponent<PieceController>();
-		PieceController piece2Controller=piece2.GetComponent<PieceController>();
-
-		piece1Controller.animateMove=true;
-		piece2Controller.animateMove=true;
-
-		Vector3 tempDestination=Vector3.zero;
-
-		tempDestination=boardController.CalculateWorldPosition(boardController
-
-		/*
-
-		List<ThreeMatch> tempMatchList=GetThreeMatches();
-		
-		if (tempMatchList.Count>0) 
-		{
-			ScoreMatches(tempMatchList);
-			boardController.RemoveMatches(tempMatchList);
-		}
-		else 
-		{
-			boardController.MakeSwap(piece1,piece2);
-		}
-		
-		GameController.gameState=GAMESTATE.MOVING;
-		
-	}*/
 
 	public void SetTriedPieces(GameObject piece1, GameObject piece2)
 	{

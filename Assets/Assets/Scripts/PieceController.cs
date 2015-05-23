@@ -46,7 +46,7 @@ public class PieceController : MonoBehaviour {
 	private BoardController boardController;
 	private MeshRenderer myRenderer;
 	private MeshFilter myFilter;
-
+	private ParticleSystem myParticles;
 
 	//built in unity methods
 
@@ -57,6 +57,7 @@ public class PieceController : MonoBehaviour {
 		myBody=GetComponent<Rigidbody>();
 		myRenderer=GetComponent<MeshRenderer>();
 		myFilter=GetComponent<MeshFilter>();
+		myParticles=GetComponent<ParticleSystem>();
 
 		moveTargetPosition=Vector3.zero;
 		SetRandomShape();
@@ -106,6 +107,15 @@ public class PieceController : MonoBehaviour {
 	//end built in unity methods
 
 	//public methods
+
+	public void ShowHint(bool show)
+	{
+		myParticles.Stop();
+		myParticles.Clear();
+
+		if (show) myParticles.Play();
+
+	}
 
 	public void StartSpin()
 	{

@@ -840,6 +840,9 @@ MonoBehaviour:
   endScoreDisplay: {fileID: 2090354888}
   gameEndDisplay: {fileID: 2112978350}
   highScoreDisplay: {fileID: 196852862}
+  hintTime: 5
+  hintsShowing: 0
+  hintCountdown: 0
 --- !u!4 &1202217897
 Transform:
   m_ObjectHideFlags: 0

@@ -332,10 +332,24 @@ public class BoardController : MonoBehaviour {
 
 	public void UnselectAll()
 	{
+		gameController.hintsShowing=false;
+		gameController.hintCountdown=gameController.hintTime;
+
 		foreach (GameObject piece in board)
 		{
-			piece.GetComponent<PieceController>().SetSelected(false);
+			PieceController tempController=piece.GetComponent<PieceController>();
+			tempController.SetSelected(false);
+			tempController.ShowHint(false);
 		}
+	}
+
+	public void HintsOn(GameObject piece1, GameObject piece2)
+	{
+		PieceController piece1Controller=piece1.GetComponent<PieceController>();
+		PieceController piece2Controller=piece2.GetComponent<PieceController>();
+
+		piece1Controller.ShowHint(true);
+		piece2Controller.ShowHint(true);
 	}
 
 
