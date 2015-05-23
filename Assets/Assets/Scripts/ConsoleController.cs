@@ -121,6 +121,16 @@ public class ConsoleController : MonoBehaviour {
 				SetHighScoreCommandValidate(commandTokens);
 				break;
 			}
+			case "SHOWCURRENT4MATCHES":
+			{
+				ShowCurrent4MatchesCommmand();
+				break;
+			}
+			case "SHOWSORTEDMATCHES":
+			{
+				ShowSortedMatchesCommand();
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -129,6 +139,62 @@ public class ConsoleController : MonoBehaviour {
 
 		}
 	}
+
+	void ShowSortedMatchesCommand()
+	{
+		MatchesContainer sortedMatchContainer=gameController.SortMatches(gameController.GetThreeMatches());
+
+		if (sortedMatchContainer.threeMatches.Count==0)
+		{
+			ConsoleOutputAdd("- no current 3 matches");
+		}
+		
+		foreach(Match match in sortedMatchContainer.threeMatches)
+		{
+			ConsoleOutputAdd("- current 3 match: "+match.MatchDisplayString());
+		}		
+
+		
+		if (sortedMatchContainer.fourMatches.Count==0)
+		{
+			ConsoleOutputAdd("- no current 4 matches");
+			return;
+		}
+		
+		foreach(Match match in sortedMatchContainer.fourMatches)
+		{
+			ConsoleOutputAdd("- current 4 match: "+match.MatchDisplayString());
+		}	
+
+	}
+
+	void ShowCurrent4MatchesCommmand()
+	{
+		List<Match> currentMatches=gameController.GetThreeMatches();
+		List<Match> current4Matches=new List<Match>();
+
+		foreach (Match threeMatch in currentMatches)
+		{
+			if (gameController.IsFourMatch(threeMatch))
+			{
+				current4Matches.Add(threeMatch);
+			}
+		}
+
+
+		if (current4Matches.Count==0)
+		{
+			ConsoleOutputAdd("- no current 4 matches");
+			return;
+		}
+		
+		foreach(Match match in current4Matches)
+		{
+			ConsoleOutputAdd("- current 4 match: "+match.MatchDisplayString());
+		}
+
+	}
+
 
 	void SetHighScoreCommand(int highScoreToSet)
 	{
@@ -171,7 +237,7 @@ public class ConsoleController : MonoBehaviour {
 
 	void ShowCurrentMatchesCommand()
 	{
-		List<ThreeMatch> currentMatches=gameController.GetThreeMatches();
+		List<Match> currentMatches=gameController.GetThreeMatches();
 
 		if (currentMatches.Count==0)
 		{
@@ -179,9 +245,9 @@ public class ConsoleController : MonoBehaviour {
 			return;
 		}
 
-		foreach(ThreeMatch match in currentMatches)
+		foreach(Match match in currentMatches)
 		{
-			ConsoleOutputAdd("- current match: "+match.ThreeMatchString());
+			ConsoleOutputAdd("- current match: "+match.MatchDisplayString());
 		}
 
 	}
@@ -293,6 +359,12 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SETHIGHSCORE":
 				ConsoleOutputAdd("- sets the high score");
+				break;
+			case "SHOWCURRENT4MATCHES":
+				ConsoleOutputAdd("- shows the current length 4 matches coordiantes and direction");
+				break;
+			case "SHOWSORTEDMATCHES":
+				ConsoleOutputAdd("- shows all the current matches sorted by three and four matches with start coords and direction");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

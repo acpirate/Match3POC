@@ -69,7 +69,7 @@ public class GameController : MonoBehaviour {
 			case GAMESTATE.MOVING:
 				if (!ArePiecesMoving())
 				{
-					PiecesStoppedMoving();
+					ReplacementPiecesStoppedMoving();
 				}
 			break;
 			case GAMESTATE.TRYMATCHMOVE:
@@ -109,7 +109,7 @@ public class GameController : MonoBehaviour {
 
 	void TryMatchMoveStop()
 	{
-		List<ThreeMatch> tempMatchList=GetThreeMatches();
+		List<Match> tempMatchList=GetThreeMatches();
 		
 		if (tempMatchList.Count>0) 
 		{
@@ -157,17 +157,123 @@ public class GameController : MonoBehaviour {
 
 	}
 
-	void ScoreMatches(List<ThreeMatch> matches)
+	void RemoveSubmatchFrom4Match(List<Match> matches, Match parent4Match)
 	{
-		foreach(ThreeMatch match in matches)
-		{
-			int tempScore=30;
-			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
-				board[match.matchStart.x+1,match.matchStart.y].GetComponent<PieceController>().ShowScore(tempScore);
-			else 
-				board[match.matchStart.x,match.matchStart.y+1].GetComponent<PieceController>().ShowScore(tempScore);
+		int removeXoffset=0;
+		int removeYoffset=0;
 
-			AddScore(tempScore);
+		if (parent4Match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+		{
+			removeXoffset=1;
+		}
+		if (parent4Match.matchDirection==MATCHDIRECTION.VERTICAL)
+		{
+			removeYoffset=1;
+		}
+
+		for (int i=0;i<matches.Count;i++)
+		{
+			if (matches[i].matchStart.x==parent4Match.matchStart.x+removeXoffset &&
+			    matches[i].matchStart.y==parent4Match.matchStart.y+removeYoffset)
+			{
+				matches[i]=null;
+				break;
+			}
+		}
+	}
+
+	public MatchesContainer SortMatches(List<Match> reportedMatches)
+	{
+		MatchesContainer calculatedMatches=new MatchesContainer();
+
+		//sorting matches into 3 and 4 matches
+		foreach(Match match in reportedMatches)
+		{
+			if (IsFourMatch(match))
+			{
+				calculatedMatches.fourMatches.Add(match);
+			}
+			else
+			{
+				calculatedMatches.threeMatches.Add(match);
+			}
+		}
+
+		//remove overlap 3 matches form 3 match list
+		if (calculatedMatches.fourMatches.Count>0)
+		foreach (Match fourMatch in calculatedMatches.fourMatches)
+		{
+			Coords offsetCoords=new Coords(0,0);
+
+			if (fourMatch.matchDirection==MATCHDIRECTION.HORIZONTAL)
+			{
+				offsetCoords.x=1;
+			}
+			if (fourMatch.matchDirection==MATCHDIRECTION.VERTICAL)
+			{
+				offsetCoords.y=1;
+			}
+
+			Coords testCoords=new Coords(fourMatch.matchStart.x+offsetCoords.x,
+			                             fourMatch.matchStart.y+offsetCoords.y);
+
+			for(int i=0;i<calculatedMatches.threeMatches.Count;i++)
+			{
+				Match tempMatch=calculatedMatches.threeMatches[i];
+
+				if (tempMatch.matchStart.x==testCoords.x && tempMatch.matchStart.y==testCoords.y && tempMatch.matchDirection==fourMatch.matchDirection)
+				{
+					calculatedMatches.threeMatches.RemoveAt(i);
+				}
+			}
+
+		}
+
+		calculatedMatches.threeMatches.TrimExcess();
+
+		return calculatedMatches;
+	}
+
+
+	void PopScore(Match matchToScore, int scoreValue, float scoreOffsetValue)
+	{
+		Vector3 scoreLocation=Vector3.zero;
+		Vector3 scoreOffset=Vector3.zero;
+		Color scoreColor=Color.black;
+
+		if (matchToScore.matchDirection==MATCHDIRECTION.HORIZONTAL)
+		{
+			scoreOffset=new Vector3(scoreOffsetValue,0,0);
+		}
+		if (matchToScore.matchDirection==MATCHDIRECTION.VERTICAL)
+		{
+			scoreOffset=new Vector3(0,scoreOffsetValue,0);
+		}
+
+		GameObject tempPiece=board[matchToScore.matchStart.x,matchToScore.matchStart.y];
+
+		scoreLocation=tempPiece.transform.position+scoreOffset;
+		scoreColor=tempPiece.GetComponent<MeshRenderer>().material.color;
+
+		boardController.ShowScore(scoreValue,scoreLocation,scoreColor);
+
+	}
+
+	void ScoreMatches(List<Match> reportedMatches)
+	{
+		MatchesContainer allMatches=SortMatches(reportedMatches);
+
+
+		foreach (Match threeMatch in allMatches.threeMatches)
+		{
+			PopScore(threeMatch,30,50f);
+			AddScore(30);
+		}
+
+		foreach (Match fourMatch in allMatches.fourMatches)
+		{
+			PopScore(fourMatch,60,75f);
+			AddScore(60);
 		}
 	}
 
@@ -190,10 +296,10 @@ public class GameController : MonoBehaviour {
 		resetting=false;
 	}
 
-	public List<ThreeMatch> GetThreeMatches()
+	public List<Match> GetThreeMatches()
 	{
 
-		List<ThreeMatch> threeMatches=new List<ThreeMatch>();
+		List<Match> threeMatches=new List<Match>();
 
 		//horizontal matches
 		for(int colCounter=0;colCounter<BoardController.boardSize-2;colCounter++)
@@ -207,7 +313,7 @@ public class GameController : MonoBehaviour {
 				    board[colCounter,rowCounter].GetComponent<PieceController>().myShape ==
 				    board[colCounter+2,rowCounter].GetComponent<PieceController>().myShape)
 				{
-					threeMatches.Add(new ThreeMatch(new Coords(colCounter,rowCounter),MATCHDIRECTION.HORIZONTAL));
+					threeMatches.Add(new Match(new Coords(colCounter,rowCounter),MATCHDIRECTION.HORIZONTAL));
 				}
 			}
 		}
@@ -222,7 +328,7 @@ public class GameController : MonoBehaviour {
 				    board[colCounter,rowCounter].GetComponent<PieceController>().myShape ==
 				    board[colCounter,rowCounter+2].GetComponent<PieceController>().myShape)
 				{
-					threeMatches.Add(new ThreeMatch(new Coords(colCounter,rowCounter),MATCHDIRECTION.VERTICAL));
+					threeMatches.Add(new Match(new Coords(colCounter,rowCounter),MATCHDIRECTION.VERTICAL));
 				}
 			}
 		}
@@ -230,6 +336,38 @@ public class GameController : MonoBehaviour {
 
 		return threeMatches;
 
+	}
+
+	public bool IsFourMatch(Match matchToCheck)
+	{
+		//Debug.Log("checking for fourmatch "+matchToCheck.MatchDisplayString());
+
+		bool fourMatchTest=false;
+
+		GameObject matchStartPiece=board[matchToCheck.matchStart.x,matchToCheck.matchStart.y];
+		PieceController startPieceController=matchStartPiece.GetComponent<PieceController>();
+		GameObject endPieceController=new GameObject();
+
+		if (matchToCheck.matchDirection==MATCHDIRECTION.HORIZONTAL)
+		{
+			if (matchToCheck.matchStart.x<5)
+			{
+				endPieceController=board[matchToCheck.matchStart.x+3,matchToCheck.matchStart.y];
+			}
+		}
+		if (matchToCheck.matchDirection==MATCHDIRECTION.VERTICAL)
+		{
+			if (matchToCheck.matchStart.y<5)
+			{
+				endPieceController=board[matchToCheck.matchStart.x,matchToCheck.matchStart.y+3];
+			}
+		}
+		//Debug.Log("start "+startPieceController.GetType().ToString());
+		//Debug.Log("end "+endPieceController.GetType().ToString());
+		if (endPieceController.GetComponent<PieceController>()!=null)
+		if (startPieceController.myShape==endPieceController.GetComponent<PieceController>().myShape) fourMatchTest=true;
+
+		return fourMatchTest;
 	}
 
 	public void ChangePieceAction(int x, int y, string shape)
@@ -297,9 +435,9 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	void PiecesStoppedMoving()
+	void ReplacementPiecesStoppedMoving()
 	{
-		List<ThreeMatch> matches = GetThreeMatches();
+		List<Match> matches = GetThreeMatches();
 
 		if (matches.Count>0) 
 		{
@@ -358,7 +496,9 @@ public class GameController : MonoBehaviour {
 
 }
 
-public class Swap {
+//holds a set of coordinates for pieces to swap
+public class Swap 
+{
 	public Coords piece1Coords;
 	public Coords piece2Coords;
 
@@ -368,22 +508,30 @@ public class Swap {
 	}
 }
 
-
-public class ThreeMatch {
+//holds information about a match
+public class Match 
+{
 
 	public Coords matchStart;
 	public MATCHDIRECTION matchDirection;
 
-	public ThreeMatch(Coords inCoords,MATCHDIRECTION inMatchDirection)
+	public Match(Coords inCoords,MATCHDIRECTION inMatchDirection)
 	{
 		matchStart=inCoords;
 		matchDirection=inMatchDirection;
 	}
 
-	public string ThreeMatchString()
+	public string MatchDisplayString()
 	{
 		string directionString="right";
 		if (matchDirection==MATCHDIRECTION.VERTICAL) directionString="up";
 		return matchStart.CoordString()+" "+directionString;
 	}
+}
+
+//holds a set of matches for a boardstate
+public class MatchesContainer
+{
+	public List<Match> threeMatches=new List<Match>();
+	public List<Match> fourMatches=new List<Match>();
 }

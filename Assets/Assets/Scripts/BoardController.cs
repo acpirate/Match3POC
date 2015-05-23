@@ -11,6 +11,7 @@ public class BoardController : MonoBehaviour {
 	public GameObject piece;
 	public GameObject removeVFX;
 	public GameObject matchFailFX;
+	public GameObject scoreFX;
 
 	public float boardPieceOffest = 30f;
 	public float boardPieceSpacing= 60f;
@@ -38,6 +39,18 @@ public class BoardController : MonoBehaviour {
 
 
 	//end unity default methods
+
+	public void ShowScore(int scoreToShow, Vector3 scoreLocation, Color scoreColor)
+	{
+		Vector3 scorePostion=new Vector3(scoreLocation.x, scoreLocation.y, -100f);
+		
+		GameObject scoreContainer=(GameObject) Instantiate(scoreFX,scorePostion,Quaternion.identity);
+		
+		ScorePopupController scoreController=scoreContainer.GetComponent<ScorePopupController>();
+		scoreController.SetScore(scoreToShow);
+		scoreController.SetColor(scoreColor);
+	}
+
 
 	public void StopAllSpin()
 	{
@@ -74,7 +87,7 @@ public class BoardController : MonoBehaviour {
 	void AvoidCurrentMatches()
 	{
 		// adjust board until there are no matches
-		List<ThreeMatch> matchList=gameController.GetThreeMatches();
+		List<Match> matchList=gameController.GetThreeMatches();
 		
 		//Debug.Log(matchList.Count.ToString());
 		int matchResetCounter=0;
@@ -82,7 +95,7 @@ public class BoardController : MonoBehaviour {
 		while (matchList.Count>0)
 		{
 			matchResetCounter++;
-			foreach (ThreeMatch match in matchList)
+			foreach (Match match in matchList)
 			{
 				if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 				{
@@ -233,9 +246,9 @@ public class BoardController : MonoBehaviour {
 
 	}
 	
-	public void RemoveMatches(List<ThreeMatch> matchesToRemove)
+	public void RemoveMatches(List<Match> matchesToRemove)
 	{
-		foreach (ThreeMatch match in matchesToRemove)
+		foreach (Match match in matchesToRemove)
 		{
 			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 			{
