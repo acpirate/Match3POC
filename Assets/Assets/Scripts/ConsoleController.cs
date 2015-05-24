@@ -131,12 +131,43 @@ public class ConsoleController : MonoBehaviour {
 				ShowSortedMatchesCommand();
 				break;
 			}
+			case "SHOWCURRENTSTRAIGHT5MATCHES":
+			{
+				ShowCurrentStraight5MatchesCommand();
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
 				break;
 			}
 
+		}
+	}
+
+	void ShowCurrentStraight5MatchesCommand()
+	{
+		List<MatchThreeOrFour> current4Matches=gameController.SortMatches(gameController.GetThreeMatches()).fourMatches;
+		List<MatchThreeOrFour> current5Matches=new List<MatchThreeOrFour>();
+		
+		foreach (MatchThreeOrFour fourMatch in current4Matches)
+		{
+			if (gameController.IsStraightFiveMatch(fourMatch))
+			{
+				current5Matches.Add(fourMatch);
+			}
+		}
+		
+		
+		if (current5Matches.Count==0)
+		{
+			ConsoleOutputAdd("- no current straight 5 matches");
+			return;
+		}
+		
+		foreach(MatchThreeOrFour match in current5Matches)
+		{
+			ConsoleOutputAdd("- current straight 5 match: "+match.MatchDisplayString());
 		}
 	}
 
@@ -149,7 +180,7 @@ public class ConsoleController : MonoBehaviour {
 			ConsoleOutputAdd("- no current 3 matches");
 		}
 		
-		foreach(Match match in sortedMatchContainer.threeMatches)
+		foreach(MatchThreeOrFour match in sortedMatchContainer.threeMatches)
 		{
 			ConsoleOutputAdd("- current 3 match: "+match.MatchDisplayString());
 		}		
@@ -158,22 +189,37 @@ public class ConsoleController : MonoBehaviour {
 		if (sortedMatchContainer.fourMatches.Count==0)
 		{
 			ConsoleOutputAdd("- no current 4 matches");
-			return;
 		}
 		
-		foreach(Match match in sortedMatchContainer.fourMatches)
+		foreach(MatchThreeOrFour match in sortedMatchContainer.fourMatches)
 		{
 			ConsoleOutputAdd("- current 4 match: "+match.MatchDisplayString());
 		}	
+
+		if (sortedMatchContainer.fiveMatches.Count==0)
+		{
+			ConsoleOutputAdd("- no current 5 matches");
+		}
+
+		foreach(MatchFiveOrMore match in sortedMatchContainer.fiveMatches)
+		{
+			string coordString="";
+			foreach (Coords coords in match.matchFivePieces)
+			{
+				coordString+=coords.CoordString()+" ";
+			}
+			ConsoleOutputAdd("- current 5 match coords:");
+			ConsoleOutputAdd(coordString);
+		}
 
 	}
 
 	void ShowCurrent4MatchesCommmand()
 	{
-		List<Match> currentMatches=gameController.GetThreeMatches();
-		List<Match> current4Matches=new List<Match>();
+		List<MatchThreeOrFour> currentMatches=gameController.GetThreeMatches();
+		List<MatchThreeOrFour> current4Matches=new List<MatchThreeOrFour>();
 
-		foreach (Match threeMatch in currentMatches)
+		foreach (MatchThreeOrFour threeMatch in currentMatches)
 		{
 			if (gameController.IsFourMatch(threeMatch))
 			{
@@ -188,7 +234,7 @@ public class ConsoleController : MonoBehaviour {
 			return;
 		}
 		
-		foreach(Match match in current4Matches)
+		foreach(MatchThreeOrFour match in current4Matches)
 		{
 			ConsoleOutputAdd("- current 4 match: "+match.MatchDisplayString());
 		}
@@ -237,7 +283,7 @@ public class ConsoleController : MonoBehaviour {
 
 	void ShowCurrentMatchesCommand()
 	{
-		List<Match> currentMatches=gameController.GetThreeMatches();
+		List<MatchThreeOrFour> currentMatches=gameController.GetThreeMatches();
 
 		if (currentMatches.Count==0)
 		{
@@ -245,7 +291,7 @@ public class ConsoleController : MonoBehaviour {
 			return;
 		}
 
-		foreach(Match match in currentMatches)
+		foreach(MatchThreeOrFour match in currentMatches)
 		{
 			ConsoleOutputAdd("- current match: "+match.MatchDisplayString());
 		}
@@ -365,6 +411,9 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SHOWSORTEDMATCHES":
 				ConsoleOutputAdd("- shows all the current matches sorted by three and four matches with start coords and direction");
+				break;
+			case "SHOWCURRENTSTRAIGHT5MATCHES":
+				ConsoleOutputAdd("- shows all the current length 5 straight matches");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

@@ -87,7 +87,7 @@ public class BoardController : MonoBehaviour {
 	void AvoidCurrentMatches()
 	{
 		// adjust board until there are no matches
-		List<Match> matchList=gameController.GetThreeMatches();
+		List<MatchThreeOrFour> matchList=gameController.GetThreeMatches();
 		
 		//Debug.Log(matchList.Count.ToString());
 		int matchResetCounter=0;
@@ -95,7 +95,7 @@ public class BoardController : MonoBehaviour {
 		while (matchList.Count>0)
 		{
 			matchResetCounter++;
-			foreach (Match match in matchList)
+			foreach (MatchThreeOrFour match in matchList)
 			{
 				if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 				{
@@ -246,9 +246,9 @@ public class BoardController : MonoBehaviour {
 
 	}
 	
-	public void RemoveMatches(List<Match> matchesToRemove)
+	public void RemoveMatches(List<MatchThreeOrFour> matchesToRemove)
 	{
-		foreach (Match match in matchesToRemove)
+		foreach (MatchThreeOrFour match in matchesToRemove)
 		{
 			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
 			{
