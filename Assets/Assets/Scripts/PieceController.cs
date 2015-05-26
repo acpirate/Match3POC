@@ -3,7 +3,7 @@ using System.Collections;
 
 public enum SHAPE {CONE, CROSS, HEART,
 	HOLLOWCUBE, ICOSPHERE,
-	STAR, TORUS}
+	STAR, TORUS, NONE}
 
 public class PieceController : MonoBehaviour {
 
@@ -173,7 +173,15 @@ public class PieceController : MonoBehaviour {
 
 	public void SetRandomShape()
 	{
-		SetShape(GameController.GetRandomEnum<SHAPE>());
+		//none designation needed for piece finding
+		SHAPE randomShape=SHAPE.NONE;
+		//repeat randomize until a non-NONE shape appears
+		while(randomShape==SHAPE.NONE)
+		{
+			randomShape=GameController.GetRandomEnum<SHAPE>();
+		}
+
+		SetShape(randomShape);
 		myStartRotation=transform.localEulerAngles;
 	}
 

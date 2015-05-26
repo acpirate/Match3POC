@@ -87,7 +87,7 @@ public class BoardController : MonoBehaviour {
 	void AvoidCurrentMatches()
 	{
 		// adjust board until there are no matches
-		List<MatchThreeOrFour> matchList=gameController.GetThreeMatches();
+		List<Match> matchList=gameController.GetBaseMatches();
 		
 		//Debug.Log(matchList.Count.ToString());
 		int matchResetCounter=0;
@@ -95,23 +95,21 @@ public class BoardController : MonoBehaviour {
 		while (matchList.Count>0)
 		{
 			matchResetCounter++;
-			foreach (MatchThreeOrFour match in matchList)
+			foreach (Match match in matchList)
 			{
-				if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+				foreach (Coords coords in match.matchCoords)
 				{
-					//Debug.Log("changing shape hmatch"+match.matchStart.CoordString());
-					board[match.matchStart.x+1,match.matchStart.y].GetComponent<PieceController>().SetRandomShape();
-				}
-				if (match.matchDirection==MATCHDIRECTION.VERTICAL)
-				{
-					//Debug.Log("changing shape vmatch"+match.matchStart.CoordString());
-					board[match.matchStart.x,match.matchStart.y+1].GetComponent<PieceController>().SetRandomShape();
+					board[coords.x,coords.y].GetComponent<PieceController>().SetRandomShape();
 				}
 			}
-			matchList=gameController.GetThreeMatches();
-			//Debug.Log(matchList.Count.ToString());
+			matchList=gameController.GetBaseMatches();
 		}
-		//Debug.Log("matchresetcounter"+matchResetCounter.ToString());
+		Debug.Log(matchResetCounter);
+	}
+
+	public GameObject GetPieceAt(Coords pieceCoords)
+	{
+		return board[pieceCoords.x,pieceCoords.y];
 	}
 
 	void SnapToWorldPosition(int col, int row)
@@ -246,27 +244,39 @@ public class BoardController : MonoBehaviour {
 
 	}
 	
-	public void RemoveMatches(List<MatchThreeOrFour> matchesToRemove)
+	public void RemoveMatches(List<Match> matchesToRemove)
 	{
-		foreach (MatchThreeOrFour match in matchesToRemove)
+		foreach (Match match in matchesToRemove)
 		{
-			if (match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+			foreach(Coords pieceCoords in match.matchCoords)
 			{
-				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y));
-				RemovePiece(new Coords(match.matchStart.x+1,match.matchStart.y));
-				RemovePiece(new Coords(match.matchStart.x+2,match.matchStart.y));
-			}
-			if (match.matchDirection==MATCHDIRECTION.VERTICAL)
-			{
-				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y));
-				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y+1));
-				RemovePiece(new Coords(match.matchStart.x,match.matchStart.y+2));
+				RemovePiece(pieceCoords);
 			}
 		}
 
 		MoveDownAndReplacePieces();
 		AnimateMove();
 
+	}
+
+	public GameObject GetPieceAtCoords(Coords inCoords)
+	{
+		GameObject tempPiece=RetrievePiece(inCoords);
+
+		return  tempPiece;
+	}
+
+	public GameObject GetPieceAtCoords(Coords inCoords, Coords inOffset)
+	{
+		GameObject tempPiece=RetrievePiece(inCoords+inOffset);
+
+		return tempPiece;
+
+	}
+
+	GameObject RetrievePiece(Coords inCoords)
+	{
+		return board[inCoords.x,inCoords.y];
 	}
 
 	void RemovePiece(Coords pieceToProcess)
@@ -376,9 +386,61 @@ public class BoardController : MonoBehaviour {
 
 }
 
-public class Coords {
+public struct Coords {
 	public int x;
 	public int y;
+
+	//plus operator allows adding two coordinates together
+	public static Coords operator +(Coords c1, Coords c2) 
+	{
+		return new Coords(c1.x+c2.x, c1.y+c2.y);
+	}
+	//== operator returns true if the coordinates have the same value
+	public static bool operator ==(Coords c1, Coords c2) 
+	{
+		bool returnValue=false;
+		if (c1.x==c2.x && c1.y==c2.y)
+		{
+			returnValue=true;
+		}
+		return returnValue;
+	}
+	//!= operator returns true if the coordinates do not have the same value
+	public static bool operator !=(Coords c1, Coords c2) 
+	{
+		bool returnValue=true;
+		if (c1.x==c2.x && c1.y==c2.y)
+		{
+			returnValue=false;
+		}
+		return returnValue;
+	}
+	//overriding == and != operators require this
+	public override bool Equals(object obj)
+	{
+		if (obj == null || GetType() != obj.GetType())
+		{
+			return false;
+		}
+		
+		Coords coordsToCompareWith = (Coords) obj;
+		
+		return (coordsToCompareWith.x==x && coordsToCompareWith.y==y);	
+	}
+
+	//overriding gethash code, required for overriding equals
+	public override int GetHashCode()
+	{
+		return x ^ y;
+	}
+
+
+	// Override the ToString
+	public override string ToString()
+	{
+		return(x.ToString() + "," + y.ToString());
+	}
+
 
 	public Coords(int inX, int inY)
 	{

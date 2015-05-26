@@ -96,14 +96,14 @@ public class ConsoleController : MonoBehaviour {
 				ChangePieceCommand(commandTokens);
 				break;
 			}
-			case "SHOWPOSSIBLEMATCHES":
+			case "SHOWPOSSIBLELINEMATCHES":
 			{
-				ShowPossibleMatchesCommand();
+				ShowPossibleLineMatchesCommand();
 				break;
 			}
-			case "SHOWCURRENTMATCHES":
+			case "SHOWCURRENTLINEMATCHES":
 			{
-				ShowCurrentMatchesCommand();
+				ShowCurrentLineMatchesCommand();
 				break;
 			}
 			case "RESETBOARD":
@@ -121,21 +121,6 @@ public class ConsoleController : MonoBehaviour {
 				SetHighScoreCommandValidate(commandTokens);
 				break;
 			}
-			case "SHOWCURRENT4MATCHES":
-			{
-				ShowCurrent4MatchesCommmand();
-				break;
-			}
-			case "SHOWSORTEDMATCHES":
-			{
-				ShowSortedMatchesCommand();
-				break;
-			}
-			case "SHOWCURRENTSTRAIGHT5MATCHES":
-			{
-				ShowCurrentStraight5MatchesCommand();
-				break;
-			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -143,102 +128,6 @@ public class ConsoleController : MonoBehaviour {
 			}
 
 		}
-	}
-
-	void ShowCurrentStraight5MatchesCommand()
-	{
-		List<MatchThreeOrFour> current4Matches=gameController.SortMatches(gameController.GetThreeMatches()).fourMatches;
-		List<MatchThreeOrFour> current5Matches=new List<MatchThreeOrFour>();
-		
-		foreach (MatchThreeOrFour fourMatch in current4Matches)
-		{
-			if (gameController.IsStraightFiveMatch(fourMatch))
-			{
-				current5Matches.Add(fourMatch);
-			}
-		}
-		
-		
-		if (current5Matches.Count==0)
-		{
-			ConsoleOutputAdd("- no current straight 5 matches");
-			return;
-		}
-		
-		foreach(MatchThreeOrFour match in current5Matches)
-		{
-			ConsoleOutputAdd("- current straight 5 match: "+match.MatchDisplayString());
-		}
-	}
-
-	void ShowSortedMatchesCommand()
-	{
-		MatchesContainer sortedMatchContainer=gameController.SortMatches(gameController.GetThreeMatches());
-
-		if (sortedMatchContainer.threeMatches.Count==0)
-		{
-			ConsoleOutputAdd("- no current 3 matches");
-		}
-		
-		foreach(MatchThreeOrFour match in sortedMatchContainer.threeMatches)
-		{
-			ConsoleOutputAdd("- current 3 match: "+match.MatchDisplayString());
-		}		
-
-		
-		if (sortedMatchContainer.fourMatches.Count==0)
-		{
-			ConsoleOutputAdd("- no current 4 matches");
-		}
-		
-		foreach(MatchThreeOrFour match in sortedMatchContainer.fourMatches)
-		{
-			ConsoleOutputAdd("- current 4 match: "+match.MatchDisplayString());
-		}	
-
-		if (sortedMatchContainer.fiveMatches.Count==0)
-		{
-			ConsoleOutputAdd("- no current 5 matches");
-		}
-
-		foreach(MatchFiveOrMore match in sortedMatchContainer.fiveMatches)
-		{
-			string coordString="";
-			foreach (Coords coords in match.matchFivePieces)
-			{
-				coordString+=coords.CoordString()+" ";
-			}
-			ConsoleOutputAdd("- current 5 match coords:");
-			ConsoleOutputAdd(coordString);
-		}
-
-	}
-
-	void ShowCurrent4MatchesCommmand()
-	{
-		List<MatchThreeOrFour> currentMatches=gameController.GetThreeMatches();
-		List<MatchThreeOrFour> current4Matches=new List<MatchThreeOrFour>();
-
-		foreach (MatchThreeOrFour threeMatch in currentMatches)
-		{
-			if (gameController.IsFourMatch(threeMatch))
-			{
-				current4Matches.Add(threeMatch);
-			}
-		}
-
-
-		if (current4Matches.Count==0)
-		{
-			ConsoleOutputAdd("- no current 4 matches");
-			return;
-		}
-		
-		foreach(MatchThreeOrFour match in current4Matches)
-		{
-			ConsoleOutputAdd("- current 4 match: "+match.MatchDisplayString());
-		}
-
 	}
 
 
@@ -281,24 +170,25 @@ public class ConsoleController : MonoBehaviour {
 		gameController.ResetBoard();
 	}
 
-	void ShowCurrentMatchesCommand()
+	void ShowCurrentLineMatchesCommand()
 	{
-		List<MatchThreeOrFour> currentMatches=gameController.GetThreeMatches();
+		List<Match> currentMatches=gameController.GetBaseMatches();
 
 		if (currentMatches.Count==0)
 		{
-			ConsoleOutputAdd("- no current matches");
+			ConsoleOutputAdd("- no current line matches");
 			return;
 		}
 
-		foreach(MatchThreeOrFour match in currentMatches)
+		ConsoleOutputAdd("- current line matches:");
+		foreach(Match match in currentMatches)
 		{
-			ConsoleOutputAdd("- current match: "+match.MatchDisplayString());
+			ConsoleOutputAdd(match.ToString());
 		}
 
 	}
 
-	void ShowPossibleMatchesCommand()
+	void ShowPossibleLineMatchesCommand()
 	{
 		List<Swap> possibleMatchList=gameController.PossibleMatches();
 
@@ -310,7 +200,7 @@ public class ConsoleController : MonoBehaviour {
 
 		foreach (Swap matchSwap in possibleMatchList)
 		{
-			ConsoleOutputAdd("- possible match: "+matchSwap.DisplayString());
+			ConsoleOutputAdd("- possible match: "+matchSwap.ToString());
 		}
 	}
 
@@ -390,11 +280,11 @@ public class ConsoleController : MonoBehaviour {
 				ConsoleOutputAdd("- Usage: CHANGEPIECE [0-7] [0-7] [piecetype]\n"+
 				                 "- Valid PieceTypes: CONE, CROSS, HEART, CUBE, SPHERE, STAR, TORUS");
 				break;
-			case "SHOWPOSSIBLEMATCHES":
+			case "SHOWPOSSIBLELINEMATCHES":
 				ConsoleOutputAdd("- shows possible matches display the coordinates of the pieces needed to be swapped");
 				break;
-			case "SHOWCURRENTMATCHES":
-				ConsoleOutputAdd("- shows the current matches coordinates and direction");
+			case "SHOWCURRENTLINEMATCHES":
+				ConsoleOutputAdd("- shows the current line match coordinates");
 				break;
 			case "RESETBOARD":
 				ConsoleOutputAdd("- destroys the board and re-rolls the pieces\n" +
@@ -405,15 +295,6 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SETHIGHSCORE":
 				ConsoleOutputAdd("- sets the high score");
-				break;
-			case "SHOWCURRENT4MATCHES":
-				ConsoleOutputAdd("- shows the current length 4 matches coordiantes and direction");
-				break;
-			case "SHOWSORTEDMATCHES":
-				ConsoleOutputAdd("- shows all the current matches sorted by three and four matches with start coords and direction");
-				break;
-			case "SHOWCURRENTSTRAIGHT5MATCHES":
-				ConsoleOutputAdd("- shows all the current length 5 straight matches");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

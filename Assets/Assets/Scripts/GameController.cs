@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
 public enum MATCHDIRECTION {HORIZONTAL, VERTICAL};
 public enum GAMESTATE {SELECTION, TRYMATCHMOVE, MOVING, FAILMATCHMOVE, CONSOLE, ENDGAME};
-
+public enum MATCHTYPE {THREEMATCH, FOURMATCH};
 
 public class GameController : MonoBehaviour {
 
@@ -74,14 +74,17 @@ public class GameController : MonoBehaviour {
 			break;
 			case GAMESTATE.TRYMATCHMOVE:
 				if (!ArePiecesMoving())
+				{	
 					TryMatchMoveStop();
+				}
 			break;
 			case GAMESTATE.FAILMATCHMOVE:
 				if (!ArePiecesMoving())
+				{
 					FailMatchMoveStop();
+				}
 			break;
 			case GAMESTATE.SELECTION:
-				
 				if (Input.GetKeyDown(KeyCode.Tab)) 
 				{
 					ToggleConsole();
@@ -89,27 +92,27 @@ public class GameController : MonoBehaviour {
 				if (!hintsShowing)
 				{
 					hintCountdown-=Time.deltaTime;
-					if (hintCountdown<=0) HintDisplay();
+					//if (hintCountdown<=0) HintDisplay();
 				}	
 				break;
 			case GAMESTATE.CONSOLE:
-				
 				if (Input.GetKeyDown(KeyCode.Tab)) 
 				{
 					ToggleConsole();
 				}
 			break;
 			case GAMESTATE.ENDGAME:
-				if (Input.GetMouseButtonDown(0)) Application.LoadLevel("GameSelect");
+				if (Input.GetMouseButtonDown(0))
+				{	
+					Application.LoadLevel("GameSelect");
+				}
 			break;
 		}
-
-		//if (GameController.gameState==GAMESTATE.MOVING && !(ArePiecesMoving())) GameController.gameState=GAMESTATE.SELECTION;
-	}
+	} //End Update
 
 	void TryMatchMoveStop()
 	{
-		List<MatchThreeOrFour> tempMatchList=GetThreeMatches();
+		List<Match> tempMatchList=GetBaseMatches();
 		
 		if (tempMatchList.Count>0) 
 		{
@@ -121,7 +124,7 @@ public class GameController : MonoBehaviour {
 		{
 			boardController.AnimateMovePairPieces(piece1Tried,piece2Tried,GAMESTATE.FAILMATCHMOVE);
 		}
-	}
+	} //End TryMatchMoveStop
 
 	void HintDisplay()
 	{
@@ -134,268 +137,162 @@ public class GameController : MonoBehaviour {
 		GameObject hintpiece2=board[swapHint.piece2Coords.x,swapHint.piece2Coords.y];
 
 		boardController.HintsOn(hintPiece1,hintpiece2);
-	}
+	} //End HintDisplay
 
 	void FailMatchMoveStop()
 	{
 		gameState=GAMESTATE.SELECTION;
-	}
+	} //End FailMatchMoveStop
 
 	void OnApplicationQuit()
 	{
 		quitting=true;
-	}
+	} //End OnApplicationQuit
 
 	//end unity builtin methods
-
-	//public methods
+	
 
 	public void SetTriedPieces(GameObject piece1, GameObject piece2)
+	//sets reference to the activated pieces so they can be put back if there is no match
 	{
 		piece1Tried=piece1;
 		piece2Tried=piece2;
-
-	}
-
-	void RemoveSubmatchFrom4Match(List<MatchThreeOrFour> matches, MatchThreeOrFour parent4Match)
-	{
-		int removeXoffset=0;
-		int removeYoffset=0;
-
-		if (parent4Match.matchDirection==MATCHDIRECTION.HORIZONTAL)
-		{
-			removeXoffset=1;
-		}
-		if (parent4Match.matchDirection==MATCHDIRECTION.VERTICAL)
-		{
-			removeYoffset=1;
-		}
-
-		for (int i=0;i<matches.Count;i++)
-		{
-			if (matches[i].matchStart.x==parent4Match.matchStart.x+removeXoffset &&
-			    matches[i].matchStart.y==parent4Match.matchStart.y+removeYoffset)
-			{
-				matches[i]=null;
-				break;
-			}
-		}
-	}
-
-	void RemoveSubmatchFrom5Match(List<MatchThreeOrFour> matches, MatchThreeOrFour parent5Match)
-	{
-		int removeXoffset=0;
-		int removeYoffset=0;
-		
-		if (parent5Match.matchDirection==MATCHDIRECTION.HORIZONTAL)
-		{
-			removeXoffset=1;
-		}
-		if (parent5Match.matchDirection==MATCHDIRECTION.VERTICAL)
-		{
-			removeYoffset=1;
-		}
-		
-		for (int i=0;i<matches.Count;i++)
-		{
-			if (matches[i].matchStart.x==parent5Match.matchStart.x+removeXoffset &&
-			    matches[i].matchStart.y==parent5Match.matchStart.y+removeYoffset)
-			{
-				matches[i]=null;
-				break;
-			}
-		}
-	}
+	} //End SetTriedPieces
+	
 
 	//sort matches into 3, 4, and 5 matches
-	public MatchesContainer SortMatches(List<MatchThreeOrFour> reportedMatches)
+	public List<Match> DesignateBlobMatches(List<Match> reportedMatches)
 	{
-		MatchesContainer calculatedMatches=new MatchesContainer();
+		List<Match> calculatedMatches=new List<Match>();
 
-		//sorting matches into 3 and 4 matches
-		foreach(MatchThreeOrFour match in reportedMatches)
-		{
-			if (IsFourMatch(match))
-			{
-				calculatedMatches.fourMatches.Add(match);
-			}
-			else
-			{
-				calculatedMatches.threeMatches.Add(match);
-			}
-		}
-
-		//remove overlap 3 matches form 3 match list
-		if (calculatedMatches.fourMatches.Count>0)
-		foreach (MatchThreeOrFour fourMatch in calculatedMatches.fourMatches)
-		{
-			Coords offsetCoords=new Coords(0,0);
-
-			if (fourMatch.matchDirection==MATCHDIRECTION.HORIZONTAL)
-			{
-				offsetCoords.x=1;
-			}
-			if (fourMatch.matchDirection==MATCHDIRECTION.VERTICAL)
-			{
-				offsetCoords.y=1;
-			}
-
-			Coords testCoords=new Coords(fourMatch.matchStart.x+offsetCoords.x,
-			                             fourMatch.matchStart.y+offsetCoords.y);
-
-			for(int i=0;i<calculatedMatches.threeMatches.Count;i++)
-			{
-				MatchThreeOrFour tempMatch=calculatedMatches.threeMatches[i];
-
-				if (tempMatch.matchStart.x==testCoords.x && tempMatch.matchStart.y==testCoords.y && tempMatch.matchDirection==fourMatch.matchDirection)
-				{
-					calculatedMatches.threeMatches.RemoveAt(i);
-				}
-			}
-
-		}
-		//remove empty slots from threematch list
-		calculatedMatches.threeMatches.TrimExcess();
-
-
-		//sortFiveMathches
-
-		//(outer loop) foreach match
-		//	add outer loop match pieces coords to temporary 5 match
-		//  (inner loop) iterate over all matches
-		//  	if the inner matches' shape corresponds to outer match
-		//			for every piece in the outer match
-		//				check if any piece in the inner match is adjacent OR equal to the coords of the outer match piece
-		//					
-		calculatedMatches=Straight5MatchRevise(calculatedMatches);
 
 
 		return calculatedMatches;
 	}
 
-	MatchesContainer Straight5MatchRevise(MatchesContainer inMatchesContainer)
-	{	
-		//return matchescontainer object
-		MatchesContainer revisedSortedMatches=new MatchesContainer();
-		//threematches transferred to new matchescontainer object
-		revisedSortedMatches.threeMatches=inMatchesContainer.threeMatches;
-		//temporary storage of four matches
-		List<MatchThreeOrFour> fourMatchStorage=new List<MatchThreeOrFour>(inMatchesContainer.fourMatches);
-		//temporary storage of five matches
-		List<MatchThreeOrFour> straight5MatchStorage=new List<MatchThreeOrFour>();
+	//returns the coords of the match and any adjacent for 5 matches
+	List<Coords> MatchAndNeighborCoords(Match inMatch)
+	{
+		List<Coords> coordsStorage=new List<Coords>();
 
-		//sort the 4 matches into 4 and 5 matches
-		for(int i=0;i<fourMatchStorage.Count;i++)
+		//iterate over each piece 
+		foreach(Coords pieceCoords in inMatch.matchCoords)
 		{
-			if (fourMatchStorage[i]!=null)
+			bool mainListCheck=false;
+			foreach(Coords storageCoords in coordsStorage)
 			{
-				MatchThreeOrFour workingMatch=fourMatchStorage[i];
-				if (IsStraightFiveMatch(workingMatch))
+				if (storageCoords==pieceCoords)
+					mainListCheck=true;
+			}
+			if (!(mainListCheck))
+			{
+				coordsStorage.Add(pieceCoords);
+			}
+
+			//check each neighbor to see if they are in the main list
+			foreach(Coords pieceAndNeighborCoords in NeighborCoods(pieceCoords))
+			{
+				bool neighborCheck=false;
+				foreach(Coords storageCoords in coordsStorage)
 				{
-					straight5MatchStorage.Add(workingMatch);
-					RemoveSubmatchFrom5Match(fourMatchStorage,workingMatch);
+					if (pieceAndNeighborCoords==storageCoords)
+						neighborCheck=true;
 				}
-				else 
+				if (!(neighborCheck))
 				{
-					revisedSortedMatches.fourMatches.Add(workingMatch);
+					coordsStorage.Add(pieceAndNeighborCoords);
 				}
 			}
+
 		}
 
-		//iterate over 5 matches and add the coordinates to the revised matchcontainer
-		foreach(MatchThreeOrFour fiveMatch in straight5MatchStorage)
-		{
-			revisedSortedMatches.fiveMatches.Add(new MatchFiveOrMore(TranslateMatchToCoords(fiveMatch)));
-		}
-
-		return revisedSortedMatches;
+		return coordsStorage;
 	}
 
-	//returns list of coordinates for input 5 match
-	List<Coords> TranslateMatchToCoords(MatchThreeOrFour in5Match)
+	//returns the neighboring coords to the input coords
+	List<Coords> NeighborCoods(Coords inCoords)
 	{
-		List<Coords> translatedCoords=new List<Coords>();
-
-		Coords matchOffSetCoords=new Coords(0,0);
-
-		if (in5Match.matchDirection==MATCHDIRECTION.HORIZONTAL)
+		List<Coords> neighborCoords=new List<Coords>();
+		//north neighbor
+		if (inCoords.y<BoardController.boardSize-1)
 		{
-			matchOffSetCoords.x=1;
+			neighborCoords.Add(new Coords(inCoords.x, inCoords.y+1));
 		}
-		if (in5Match.matchDirection==MATCHDIRECTION.VERTICAL)
+		//south neighbor
+		if (inCoords.y>0)
 		{
-			matchOffSetCoords.y=1;
+			neighborCoords.Add(new Coords(inCoords.x, inCoords.y-1));
 		}
-
-		Coords startCoords=in5Match.matchStart;
-
-		for(int i=0;i<5;i++)
+		//east neighbor
+		if (inCoords.x<BoardController.boardSize-1)
 		{
-			translatedCoords.Add(new Coords(startCoords.x+i*matchOffSetCoords.x,startCoords.y+i*matchOffSetCoords.y));
+			neighborCoords.Add(new Coords(inCoords.x+1, inCoords.y));
+		}
+		//west neighbor
+		if (inCoords.x>0)
+		{
+			neighborCoords.Add(new Coords(inCoords.x-1, inCoords.y));
 		}
 
-		return translatedCoords;
+		return neighborCoords;
+	}
+
+	//returns true if the there are any equalities in the two input coordinate lists
+	bool CorrespondingCoords(List<Coords> testMatchCoords1, List<Coords> testMatchCoords2)
+	{
+		bool coordsMatch=false;
+
+		foreach (Coords outerCoords in testMatchCoords1)
+		{
+			foreach (Coords innerCoords in testMatchCoords2)
+			{
+				if (outerCoords==innerCoords)
+				{
+					coordsMatch=true;
+					break;
+				}
+			}
+			if (coordsMatch) break;
+		}
+
+		return coordsMatch;
 	}
 
 	//create score popup effect
-	void PopScore(MatchThreeOrFour matchToScore, int scoreValue, float scoreOffsetValue)
-	{
-		Vector3 scoreLocation=Vector3.zero;
-		Vector3 scoreOffset=Vector3.zero;
-		Color scoreColor=Color.black;
-
-		if (matchToScore.matchDirection==MATCHDIRECTION.HORIZONTAL)
-		{
-			scoreOffset=new Vector3(scoreOffsetValue,0,0);
-		}
-		if (matchToScore.matchDirection==MATCHDIRECTION.VERTICAL)
-		{
-			scoreOffset=new Vector3(0,scoreOffsetValue,0);
-		}
-
-		GameObject tempPiece=board[matchToScore.matchStart.x,matchToScore.matchStart.y];
-
-		scoreLocation=tempPiece.transform.position+scoreOffset;
-		scoreColor=tempPiece.GetComponent<MeshRenderer>().material.color;
-
-		boardController.ShowScore(scoreValue,scoreLocation,scoreColor);
-
-	}
-
-	void PopFiveMatchScore(MatchFiveOrMore matchToScore, int scoreValue)
+	void PopScore(Match matchToScore, int scoreValue)
 	{
 		Vector3 scoreLocation=Vector3.zero;
 		Color scoreColor=Color.black;
 
-		GameObject samplePiece=board[matchToScore.matchFivePieces[0].x,matchToScore.matchFivePieces[0].y];
+		GameObject samplePiece=board[matchToScore.matchCoords[0].x,matchToScore.matchCoords[0].y];
 		scoreColor=samplePiece.GetComponent<MeshRenderer>().material.color;
 
-		scoreLocation=FindCenterPieceLocationOfFiveMatch(matchToScore);
+		scoreLocation=FindCenterPieceLocationOfMatch(matchToScore);
 
 		boardController.ShowScore(scoreValue,scoreLocation,scoreColor);
 		
 	}
 
-	Vector3 FindCenterPieceLocationOfFiveMatch(MatchFiveOrMore in5Match)
+	Vector3 FindCenterPieceLocationOfMatch(Match inMatch)
 	{
 		float averageX=0;
 		float averageY=0;
 
-		foreach(Coords pieceCoords in in5Match.matchFivePieces)
+		foreach(Coords pieceCoords in inMatch.matchCoords)
 		{
 			averageX+=board[pieceCoords.x,pieceCoords.y].transform.position.x;
 			averageY+=board[pieceCoords.x,pieceCoords.y].transform.position.y;
 		}
-		averageX=averageX/in5Match.matchFivePieces.Count;
-		averageY=averageY/in5Match.matchFivePieces.Count;
+		averageX=averageX/inMatch.matchCoords.Count;
+		averageY=averageY/inMatch.matchCoords.Count;
 
 		Vector3 centerPoint=new Vector3(averageX,averageY,0);
 		float shortestDistance=10000f;
 
 
-		GameObject tempPiece=board[in5Match.matchFivePieces[0].x,in5Match.matchFivePieces[0].y];
+		GameObject tempPiece=board[inMatch.matchCoords[0].x,inMatch.matchCoords[0].y];
 
-		foreach(Coords pieceCoords in in5Match.matchFivePieces)
+		foreach(Coords pieceCoords in inMatch.matchCoords)
 		{
 			Vector3 offset = centerPoint - board[pieceCoords.x,pieceCoords.y].transform.position;
 			float centerDistance = offset.sqrMagnitude;
@@ -411,27 +308,23 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	void ScoreMatches(List<MatchThreeOrFour> reportedMatches)
+	void ScoreMatches(List<Match> reportedMatches)
 	{
-		MatchesContainer allMatches=SortMatches(reportedMatches);
-
-
-		foreach (MatchThreeOrFour threeMatch in allMatches.threeMatches)
+		foreach(Match match in reportedMatches)
 		{
-			PopScore(threeMatch,30,50f);
-			AddScore(30);
-		}
+			switch (match.matchCoords.Count)
+			{
+				case 3:
+					PopScore(match,30);
+				break;
 
-		foreach (MatchThreeOrFour fourMatch in allMatches.fourMatches)
-		{
-			PopScore(fourMatch,60,75f);
-			AddScore(60);
-		}
-
-		foreach (MatchFiveOrMore fiveMatch in allMatches.fiveMatches)
-		{
-			PopFiveMatchScore(fiveMatch,100);
-			AddScore(100);
+				case 4:
+					PopScore(match,60);
+				break;
+				default:
+					PopScore(match,100);
+				break;
+			}
 		}
 	}
 
@@ -455,114 +348,99 @@ public class GameController : MonoBehaviour {
 		resetting=false;
 	}
 
-	public List<MatchThreeOrFour> GetThreeMatches()
+
+	//return a list of all of the shape matches currently showing
+	public List<Match> GetBaseMatches()
 	{
 
-		List<MatchThreeOrFour> threeMatches=new List<MatchThreeOrFour>();
+		List<Match> baseMatches=new List<Match>();
 
-		//horizontal matches
-		for(int colCounter=0;colCounter<BoardController.boardSize-2;colCounter++)
-		{
-			for (int rowCounter=0;rowCounter<BoardController.boardSize;rowCounter++)
-			{
-				//Debug.Log(colCounter.ToString()+","+rowCounter.ToString());
-				//Debug.Log(board[colCounter,rowCounter].GetComponent<PieceController>().myShape);
-				if (board[colCounter,rowCounter].GetComponent<PieceController>().myShape ==
-				    board[colCounter+1,rowCounter].GetComponent<PieceController>().myShape &&
-				    board[colCounter,rowCounter].GetComponent<PieceController>().myShape ==
-				    board[colCounter+2,rowCounter].GetComponent<PieceController>().myShape)
-				{
-					threeMatches.Add(new MatchThreeOrFour(new Coords(colCounter,rowCounter),MATCHDIRECTION.HORIZONTAL));
-				}
-			}
-		}
+		SHAPE baseShape=SHAPE.NONE;
+		int runCount=1;
 
 		//vertical matches
 		for(int colCounter=0;colCounter<BoardController.boardSize;colCounter++)
 		{
-			for (int rowCounter=0;rowCounter<BoardController.boardSize-2;rowCounter++)
+			baseShape=SHAPE.NONE;
+			runCount=1;
+			Match tempMatch=new Match();
+			for (int rowCounter=0;rowCounter<BoardController.boardSize;rowCounter++)
 			{
-				if (board[colCounter,rowCounter].GetComponent<PieceController>().myShape ==
-				    board[colCounter,rowCounter+1].GetComponent<PieceController>().myShape &&
-				    board[colCounter,rowCounter].GetComponent<PieceController>().myShape ==
-				    board[colCounter,rowCounter+2].GetComponent<PieceController>().myShape)
+				PieceController tempPieceController=boardController.GetPieceAtCoords(new Coords(colCounter,rowCounter)).GetComponent<PieceController>();
+				if (tempPieceController.myShape==baseShape)
 				{
-					threeMatches.Add(new MatchThreeOrFour(new Coords(colCounter,rowCounter),MATCHDIRECTION.VERTICAL));
+					runCount++;
+					if (runCount==3)
+					{
+						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter));
+						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter-1));
+						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter-2));
+					}
+					if (runCount>3)
+					{
+						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter));
+					}
 				}
+				//the piece doesnt match the previous match
+				else 
+				{
+					//add the previous match to the matchlist if the runcount > 2
+					if (runCount>2)
+					{
+						baseMatches.Add(tempMatch);
+					}
+					runCount=1;
+					baseShape=tempPieceController.myShape;
+					tempMatch=new Match(baseShape);
+
+				}
+
 			}
 		}
 
-
-		return threeMatches;
-
-	}
-
-	public bool IsFourMatch(MatchThreeOrFour matchToCheck)
-	{
-		//Debug.Log("checking for fourmatch "+matchToCheck.MatchDisplayString());
-
-		bool fourMatchTest=false;
-
-		GameObject matchStartPiece=board[matchToCheck.matchStart.x,matchToCheck.matchStart.y];
-		PieceController startPieceController=matchStartPiece.GetComponent<PieceController>();
-		GameObject endPieceController=new GameObject();
-
-		if (matchToCheck.matchDirection==MATCHDIRECTION.HORIZONTAL)
+		//horizontal matches
+		for(int rowCounter=0;rowCounter<BoardController.boardSize;rowCounter++)
 		{
-			if (matchToCheck.matchStart.x<5)
+			baseShape=SHAPE.NONE;
+			runCount=1;
+			Match tempMatch=new Match();
+			for (int colCounter=0;colCounter<BoardController.boardSize;colCounter++)
 			{
-				endPieceController=board[matchToCheck.matchStart.x+3,matchToCheck.matchStart.y];
+				PieceController tempPieceController=boardController.GetPieceAtCoords(new Coords(colCounter,rowCounter)).GetComponent<PieceController>();
+				if (tempPieceController.myShape==baseShape)
+				{
+					runCount++;
+					if (runCount==3)
+					{
+						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter));
+						tempMatch.matchCoords.Add(new Coords(colCounter-1,rowCounter));
+						tempMatch.matchCoords.Add(new Coords(colCounter-2,rowCounter));
+					}
+					if (runCount>3)
+					{
+						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter));
+					}
+				}
+				//the piece doesnt match the previous match
+				else 
+				{
+					//add the previous match to the matchlist if the runcount > 2
+					if (runCount>2)
+					{
+						baseMatches.Add(tempMatch);
+					}
+					runCount=1;
+					baseShape=tempPieceController.myShape;
+					tempMatch=new Match(baseShape);
+					
+				}
+				
 			}
 		}
-		if (matchToCheck.matchDirection==MATCHDIRECTION.VERTICAL)
-		{
-			if (matchToCheck.matchStart.y<5)
-			{
-				endPieceController=board[matchToCheck.matchStart.x,matchToCheck.matchStart.y+3];
-			}
-		}
-		//Debug.Log("start "+startPieceController.GetType().ToString());
-		//Debug.Log("end "+endPieceController.GetType().ToString());
-		if (endPieceController.GetComponent<PieceController>()!=null)
-		if (startPieceController.myShape==endPieceController.GetComponent<PieceController>().myShape) fourMatchTest=true;
 
-		return fourMatchTest;
-	}
 
-	//checks if a 4 match is a straight 5 match
-	public bool IsStraightFiveMatch(MatchThreeOrFour matchToCheck)
-	{
-		//Debug.Log("checking for fourmatch "+matchToCheck.MatchDisplayString());
-		
-		bool fiveMatchTest=false;
-		
-		GameObject matchStartPiece=board[matchToCheck.matchStart.x,matchToCheck.matchStart.y];
-		PieceController startPieceController=matchStartPiece.GetComponent<PieceController>();
-		GameObject endPieceController=new GameObject();
-		
-		if (matchToCheck.matchDirection==MATCHDIRECTION.HORIZONTAL)
-		{
-			if (matchToCheck.matchStart.x<4)
-			{
-				endPieceController=board[matchToCheck.matchStart.x+4,matchToCheck.matchStart.y];
-			}
-		}
-		if (matchToCheck.matchDirection==MATCHDIRECTION.VERTICAL)
-		{
-			if (matchToCheck.matchStart.y<4)
-			{
-				endPieceController=board[matchToCheck.matchStart.x,matchToCheck.matchStart.y+4];
-			}
-		}
-		//Debug.Log("start "+startPieceController.GetType().ToString());
-		//Debug.Log("end "+endPieceController.GetType().ToString());
-		if (endPieceController.GetComponent<PieceController>()!=null)
-			if (startPieceController.myShape==endPieceController.GetComponent<PieceController>().myShape)
-			{
-				fiveMatchTest=true;
-			}
-		
-		return fiveMatchTest;
+		return baseMatches;
+
 	}
 
 	public void ChangePieceAction(int x, int y, string shape)
@@ -585,9 +463,9 @@ public class GameController : MonoBehaviour {
 				if (colCounter<BoardController.boardSize-1) 
 				{
 					boardController.MakeSwap(board[colCounter,rowCounter],board[colCounter+1,rowCounter]);
-					if (GetThreeMatches().Count>0)
+					if (GetBaseMatches().Count>0)
 					{
-						Swap tempSwap=new Swap();
+						Swap tempSwap;
 						tempSwap.piece1Coords=new Coords(colCounter,rowCounter);
 						tempSwap.piece2Coords=new Coords(colCounter+1,rowCounter);
 						foundMatches.Add(tempSwap);
@@ -598,9 +476,9 @@ public class GameController : MonoBehaviour {
 				if (rowCounter<BoardController.boardSize-1) 
 				{
 					boardController.MakeSwap(board[colCounter,rowCounter],board[colCounter,rowCounter+1]);
-					if (GetThreeMatches().Count>0)
+					if (GetBaseMatches().Count>0)
 					{
-						Swap tempSwap=new Swap();
+						Swap tempSwap;
 						tempSwap.piece1Coords=new Coords(colCounter,rowCounter);
 						tempSwap.piece2Coords=new Coords(colCounter,rowCounter+1);
 						foundMatches.Add(tempSwap);
@@ -632,7 +510,7 @@ public class GameController : MonoBehaviour {
 
 	void ReplacementPiecesStoppedMoving()
 	{
-		List<MatchThreeOrFour> matches = GetThreeMatches();
+		List<Match> matches = GetBaseMatches();
 
 		if (matches.Count>0) 
 		{
@@ -694,60 +572,50 @@ public class GameController : MonoBehaviour {
 
 
 
-
-
+//public classes
 
 
 //holds a set of coordinates for pieces to swap
-public class Swap 
+public struct Swap 
 {
 	public Coords piece1Coords;
 	public Coords piece2Coords;
 
-	public string DisplayString()
+
+	// Override the ToString
+	public override string ToString()
 	{
-		return "piece1: "+piece1Coords.CoordString()+" piece2: "+piece2Coords.CoordString();
+		return "piece1: "+piece1Coords.ToString()+" piece2: "+piece2Coords.ToString();
 	}
 }
 
-//holds information about a match three or four
-public class MatchThreeOrFour 
+public struct Match
 {
+	public List<Coords> matchCoords;
+	public SHAPE matchShape;
 
-	public Coords matchStart;
-	public MATCHDIRECTION matchDirection;
 
-	public MatchThreeOrFour(Coords inCoords,MATCHDIRECTION inMatchDirection)
+	public Match(SHAPE inShape)
 	{
-		matchStart=inCoords;
-		matchDirection=inMatchDirection;
+		matchCoords=new List<Coords>();
+		matchShape=inShape;
 	}
 
-	public string MatchDisplayString()
+	// Override the ToString
+	public override string ToString()
 	{
-		string directionString="right";
-		if (matchDirection==MATCHDIRECTION.VERTICAL) directionString="up";
-		return matchStart.CoordString()+" "+directionString;
+		string matchString="";
+
+		matchString+="- "+matchCoords.Count.ToString()+" piece match of shape "+matchShape.ToString()+"\n";
+		matchString+="- Coords: ";
+
+		foreach(Coords coords in matchCoords)
+		{
+			matchString+=coords.ToString()+"|";
+		}
+
+		return matchString;
 	}
 }
 
-//a 5 match is a list of piece coordinates
-public class MatchFiveOrMore
-{
-	public List<Coords> matchFivePieces;
-	public SHAPE matchFiveShape;
 
-	public MatchFiveOrMore(List<Coords> inStartCoords)
-	{
-		matchFivePieces=inStartCoords;
-	}
-
-}
-
-//holds a set of matches for a boardstate
-public class MatchesContainer
-{
-	public List<MatchThreeOrFour> threeMatches=new List<MatchThreeOrFour>();
-	public List<MatchThreeOrFour> fourMatches=new List<MatchThreeOrFour>();
-	public List<MatchFiveOrMore> fiveMatches=new List<MatchFiveOrMore>();
-}
