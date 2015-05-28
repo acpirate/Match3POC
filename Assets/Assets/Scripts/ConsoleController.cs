@@ -12,10 +12,14 @@ public class ConsoleController : MonoBehaviour {
 	private int consoleLines;
 
 	public GameController gameController;
+	public BoardController boardController;
+
+	private GameObject[,] board;
+
 
 	void Awake()
 	{
-
+		board=boardController.GetBoard();
 	}
 
 	void OnEnable()
@@ -121,6 +125,21 @@ public class ConsoleController : MonoBehaviour {
 				SetHighScoreCommandValidate(commandTokens);
 				break;
 			}
+			case "SHOWBOARDSTRING":
+			{
+				ShowBoardStringCommand();
+				break;
+			}
+			case "SAVEBOARDSTATE":
+			{
+				SaveBoardStateCommand();
+				break;
+			}
+			case "LOADBOARDSTATE":
+			{
+				LoadBoardStateCommand();
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -128,6 +147,49 @@ public class ConsoleController : MonoBehaviour {
 			}
 
 		}
+	}
+
+	void LoadBoardStateCommand()
+	{
+
+		string boardString=PlayerPrefs.GetString("BoardState");
+
+		if (boardString=="")
+		{
+			ConsoleOutputAdd("- No saved board state");
+			return;
+		}
+
+		ConsoleOutputAdd("- Loading Board State");
+
+		foreach(string pieceString in boardString.Split('|'))
+		{
+			if (pieceString.Length==3)
+			{
+				string xString=pieceString.Substring(0,1);
+				string yString=pieceString.Substring(1,1);
+				string shapeString=pieceString.Substring(2,1);
+
+				gameController.ChangePieceAction(int.Parse(xString), int.Parse(yString), (SHAPE) int.Parse(shapeString));
+
+				//Debug.Log("xcoord: "+xString+" ycoord: "+yString+" shape: "+(SHAPE) int.Parse(shapeString));
+			}
+		}
+	
+
+
+	}
+
+	void SaveBoardStateCommand()
+	{
+		ConsoleOutputAdd("- Saving board state");
+		PlayerPrefs.SetString("BoardState",boardController.BoardString());
+	}
+
+	void ShowBoardStringCommand()
+	{
+		ConsoleOutputAdd("- Board State String");
+		ConsoleOutputAdd(boardController.BoardString());
 	}
 
 
@@ -295,6 +357,15 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SETHIGHSCORE":
 				ConsoleOutputAdd("- sets the high score");
+				break;
+			case "SHOWBOARDSTRING":
+				ConsoleOutputAdd("- show board state as string");
+				break;
+			case "SAVEBOARDSTATE":
+				ConsoleOutputAdd("- saves the board state");
+				break;
+			case "LOADBOARDSTATE":
+				ConsoleOutputAdd("- loads the saved board state");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

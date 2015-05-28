@@ -40,6 +40,26 @@ public class BoardController : MonoBehaviour {
 
 	//end unity default methods
 
+	public string BoardString()
+	{
+		string boardString="";
+
+		for(int rowCounter=0;rowCounter<boardSize;rowCounter++)
+		{
+			for (int colCounter=0;colCounter<boardSize;colCounter++)
+			{
+				boardString+=colCounter.ToString()+rowCounter.ToString()+
+					(int)board[colCounter,rowCounter].GetComponent<PieceController>().myShape;
+				boardString+="|";
+			}
+		}
+
+
+
+		return boardString;
+	}
+
+
 	public void ShowScore(int scoreToShow, Vector3 scoreLocation, Color scoreColor)
 	{
 		Vector3 scorePostion=new Vector3(scoreLocation.x, scoreLocation.y, -100f);
@@ -104,7 +124,7 @@ public class BoardController : MonoBehaviour {
 			}
 			matchList=gameController.GetBaseMatches();
 		}
-		Debug.Log(matchResetCounter);
+//		Debug.Log(matchResetCounter);
 	}
 
 	public GameObject GetPieceAt(Coords pieceCoords)

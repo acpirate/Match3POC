@@ -221,7 +221,7 @@ public class PieceController : MonoBehaviour {
 	//end public methods
 	
 	//private methods
-	private void SetShape(SHAPE shape)
+	public void SetShape(SHAPE shape)
 	{
 		transform.localEulerAngles=Vector3.zero;
 		

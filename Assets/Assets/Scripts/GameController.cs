@@ -375,6 +375,7 @@ public class GameController : MonoBehaviour {
 						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter));
 						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter-1));
 						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter-2));
+						baseMatches.Add(tempMatch);
 					}
 					if (runCount>3)
 					{
@@ -385,10 +386,6 @@ public class GameController : MonoBehaviour {
 				else 
 				{
 					//add the previous match to the matchlist if the runcount > 2
-					if (runCount>2)
-					{
-						baseMatches.Add(tempMatch);
-					}
 					runCount=1;
 					baseShape=tempPieceController.myShape;
 					tempMatch=new Match(baseShape);
@@ -442,11 +439,17 @@ public class GameController : MonoBehaviour {
 		return baseMatches;
 
 	}
-
+	//called by changepiece console command
 	public void ChangePieceAction(int x, int y, string shape)
 	{
 		board[x,y].GetComponent<PieceController>().SetShapeFromString(shape);
 	}	
+
+	//called by loadboardstate console command	
+	public void ChangePieceAction(int x, int y, SHAPE inShape)
+	{
+		board[x,y].GetComponent<PieceController>().SetShape(inShape);
+	}
 
 	//end public methods
 

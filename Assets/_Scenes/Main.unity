@@ -791,6 +791,7 @@ MonoBehaviour:
   consoleOutput: {fileID: 1576264575}
   consoleLines: 19
   gameController: {fileID: 1202217896}
+  boardController: {fileID: 1850173304}
 --- !u!223 &1092725740
 Canvas:
   m_ObjectHideFlags: 0
