@@ -140,12 +140,34 @@ public class ConsoleController : MonoBehaviour {
 				LoadBoardStateCommand();
 				break;
 			}
+			case "SHOWCURRENTBLOBMATCHES":
+			{
+				ShowCurrentBlobMatchesCommnad();
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
 				break;
 			}
 
+		}
+	}
+
+	void ShowCurrentBlobMatchesCommnad()
+	{
+		List<Match> currentMatches=gameController.DesignateBlobMatches(gameController.GetBaseMatches());
+		
+		if (currentMatches.Count==0)
+		{
+			ConsoleOutputAdd("- no current matches");
+			return;
+		}
+		
+		ConsoleOutputAdd("- current matches:");
+		foreach(Match match in currentMatches)
+		{
+			ConsoleOutputAdd(match.ToString());
 		}
 	}
 
@@ -366,6 +388,9 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "LOADBOARDSTATE":
 				ConsoleOutputAdd("- loads the saved board state");
+				break;
+			case "SHOWCURRENTBLOBMATCHES":
+				ConsoleOutputAdd("- shows the current matches after calculating blob matches");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");

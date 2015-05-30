@@ -116,7 +116,7 @@ public class GameController : MonoBehaviour {
 		
 		if (tempMatchList.Count>0) 
 		{
-			ScoreMatches(tempMatchList);
+			ScoreMatches(DesignateBlobMatches(tempMatchList));
 			boardController.RemoveMatches(tempMatchList);
 			GameController.gameState=GAMESTATE.MOVING;
 		}
@@ -163,8 +163,61 @@ public class GameController : MonoBehaviour {
 	//sort matches into 3, 4, and 5 matches
 	public List<Match> DesignateBlobMatches(List<Match> reportedMatches)
 	{
-		List<Match> calculatedMatches=new List<Match>();
+		List<Match> calculatedMatches=new List<Match>(reportedMatches);
 
+
+
+			//iterate over the match list
+			for(int outerMatchIndex=0;outerMatchIndex<calculatedMatches.Count;outerMatchIndex++)
+			{
+				Match outerMatch=calculatedMatches[outerMatchIndex];
+				//if the match exists (not removed because it is clustered with antoher match
+				if (outerMatch.matchCoords.Count!=0)
+				{
+					//iterate over the matches again
+					for(int innerMatchIndex=0;innerMatchIndex<calculatedMatches.Count;innerMatchIndex++)
+					{
+						//Debug.Log("in inner match loop");
+						Match innerMatch=calculatedMatches[innerMatchIndex];
+						//if the match exists and isn't removed because it was clustered with another match and the shapes match
+						if (outerMatchIndex!=innerMatchIndex && innerMatch.matchCoords.Count!=0 && innerMatch.matchShape==outerMatch.matchShape)
+						{
+							//if there are overlapping coords between the outermatchcoords and neighbors and the inner match coords
+							if (CorrespondingCoords(MatchAndNeighborCoords(outerMatch),
+							                       	innerMatch.matchCoords))
+							{
+								foreach(Coords innerMatchCoords in innerMatch.matchCoords)
+								{
+									bool existsInOuterMatch=false;
+									foreach(Coords outerMatchCoords in outerMatch.matchCoords)
+									{
+										if (innerMatchCoords==outerMatchCoords)
+										{
+											existsInOuterMatch=true;
+										}
+									}
+									if (!existsInOuterMatch) outerMatch.matchCoords.Add(innerMatchCoords);
+
+								}//end adding matches 
+								calculatedMatches[innerMatchIndex].matchCoords.Clear();
+							//Debug.Log("after matching set innermatch flag "+calculatedMatches[innerMatchIndex].removeFlag);
+							}
+						}
+					}
+				}
+			}
+		//clear matches flagged for removal
+
+		for(int i=calculatedMatches.Count-1;i>-1;i--)
+		{
+			//Debug.Log("in caculated matches match num "+i+" remove flag is " + calculatedMatches[i].removeFlag);
+			if (calculatedMatches[i].matchCoords.Count==0)
+			{
+				Debug.Log("remove match");
+				calculatedMatches.RemoveAt(i);
+			}
+		}
+		calculatedMatches.TrimExcess();
 
 
 		return calculatedMatches;
@@ -190,7 +243,7 @@ public class GameController : MonoBehaviour {
 			}
 
 			//check each neighbor to see if they are in the main list
-			foreach(Coords pieceAndNeighborCoords in NeighborCoods(pieceCoords))
+			foreach(Coords pieceAndNeighborCoords in NeighborCoords(pieceCoords))
 			{
 				bool neighborCheck=false;
 				foreach(Coords storageCoords in coordsStorage)
@@ -210,7 +263,7 @@ public class GameController : MonoBehaviour {
 	}
 
 	//returns the neighboring coords to the input coords
-	List<Coords> NeighborCoods(Coords inCoords)
+	List<Coords> NeighborCoords(Coords inCoords)
 	{
 		List<Coords> neighborCoords=new List<Coords>();
 		//north neighbor
@@ -316,13 +369,17 @@ public class GameController : MonoBehaviour {
 			{
 				case 3:
 					PopScore(match,30);
+					AddScore(30);
 				break;
 
 				case 4:
 					PopScore(match,60);
+					AddScore(60);
 				break;
 				default:
-					PopScore(match,100);
+					int tempScore=20*match.matchCoords.Count;
+					PopScore(match,tempScore);
+					AddScore(tempScore);
 				break;
 			}
 		}
@@ -349,7 +406,7 @@ public class GameController : MonoBehaviour {
 	}
 
 
-	//return a list of all of the shape matches currently showing
+	//return a list of all of the straight/line matches currently showing
 	public List<Match> GetBaseMatches()
 	{
 
@@ -412,6 +469,7 @@ public class GameController : MonoBehaviour {
 						tempMatch.matchCoords.Add(new Coords(colCounter,rowCounter));
 						tempMatch.matchCoords.Add(new Coords(colCounter-1,rowCounter));
 						tempMatch.matchCoords.Add(new Coords(colCounter-2,rowCounter));
+						baseMatches.Add(tempMatch);
 					}
 					if (runCount>3)
 					{
@@ -422,10 +480,6 @@ public class GameController : MonoBehaviour {
 				else 
 				{
 					//add the previous match to the matchlist if the runcount > 2
-					if (runCount>2)
-					{
-						baseMatches.Add(tempMatch);
-					}
 					runCount=1;
 					baseShape=tempPieceController.myShape;
 					tempMatch=new Match(baseShape);
@@ -517,7 +571,7 @@ public class GameController : MonoBehaviour {
 
 		if (matches.Count>0) 
 		{
-			ScoreMatches(matches);
+			ScoreMatches(DesignateBlobMatches(matches));
 			boardController.RemoveMatches(matches);
 		}
 		else if (PossibleMatches().Count==0)
@@ -597,11 +651,11 @@ public struct Match
 	public List<Coords> matchCoords;
 	public SHAPE matchShape;
 
-
 	public Match(SHAPE inShape)
 	{
 		matchCoords=new List<Coords>();
 		matchShape=inShape;
+
 	}
 
 	// Override the ToString
