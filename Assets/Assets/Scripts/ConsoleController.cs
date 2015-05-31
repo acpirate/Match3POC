@@ -14,12 +14,9 @@ public class ConsoleController : MonoBehaviour {
 	public GameController gameController;
 	public BoardController boardController;
 
-	private GameObject[,] board;
-
 
 	void Awake()
 	{
-		board=boardController.GetBoard();
 	}
 
 	void OnEnable()
