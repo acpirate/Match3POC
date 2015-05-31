@@ -1005,8 +1005,10 @@ MonoBehaviour:
   scoreDisplay: {fileID: 510354800}
   endScoreDisplay: {fileID: 2090354888}
   gameEndDisplay: {fileID: 2112978350}
+  cascadeDisplay: {fileID: 833810400}
   highScoreDisplay: {fileID: 196852862}
   hintTime: 5
+  cascadeScoreMultiplier: .100000001
   hintsShowing: 0
   hintCountdown: 0
 --- !u!4 &1202217897

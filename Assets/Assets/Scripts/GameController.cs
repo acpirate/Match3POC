@@ -20,8 +20,10 @@ public class GameController : MonoBehaviour {
 	public Text scoreDisplay;
 	public Text endScoreDisplay;
 	public GameObject gameEndDisplay;
+	public Text cascadeDisplay;
 	public Text highScoreDisplay;
 	public float hintTime=3f;
+	public float cascadeScoreMultiplier=0.1f;
 
 	[HideInInspector]
 	public bool hintsShowing=false;
@@ -33,6 +35,8 @@ public class GameController : MonoBehaviour {
 	private GameObject piece2Tried;
 	[HideInInspector]
 	public float hintCountdown;
+	
+	private int cascadeLevel;
 	//helper methods
 
 	//get a random item of the given type
@@ -57,6 +61,7 @@ public class GameController : MonoBehaviour {
 
 	void Start()
 	{
+		cascadeLevel=0;
 		score=0;
 		board=boardController.GetBoard();
 	}
@@ -92,7 +97,7 @@ public class GameController : MonoBehaviour {
 				if (!hintsShowing)
 				{
 					hintCountdown-=Time.deltaTime;
-					//if (hintCountdown<=0) HintDisplay();
+					if (hintCountdown<=0) HintDisplay();
 				}	
 				break;
 			case GAMESTATE.CONSOLE:
@@ -110,6 +115,14 @@ public class GameController : MonoBehaviour {
 		}
 	} //End Update
 
+	void OnApplicationQuit()
+	{
+		quitting=true;
+	} //End OnApplicationQuit
+
+	
+	//end unity builtin methods
+
 	void TryMatchMoveStop()
 	{
 		List<Match> tempMatchList=GetBaseMatches();
@@ -119,6 +132,7 @@ public class GameController : MonoBehaviour {
 			ScoreMatches(DesignateBlobMatches(tempMatchList));
 			boardController.RemoveMatches(tempMatchList);
 			GameController.gameState=GAMESTATE.MOVING;
+			SetCascade(cascadeLevel+1);
 		}
 		else 
 		{
@@ -143,14 +157,14 @@ public class GameController : MonoBehaviour {
 	{
 		gameState=GAMESTATE.SELECTION;
 	} //End FailMatchMoveStop
-
-	void OnApplicationQuit()
-	{
-		quitting=true;
-	} //End OnApplicationQuit
-
-	//end unity builtin methods
 	
+
+	public void SetCascade(int inCascadeLevel)
+	{
+		cascadeLevel=inCascadeLevel;
+		cascadeDisplay.text="Cascade: "+cascadeLevel.ToString();
+	}
+
 
 	public void SetTriedPieces(GameObject piece1, GameObject piece2)
 	//sets reference to the activated pieces so they can be put back if there is no match
@@ -363,25 +377,33 @@ public class GameController : MonoBehaviour {
 
 	void ScoreMatches(List<Match> reportedMatches)
 	{
+		float cascadeMulitplierValue=cascadeLevel*cascadeScoreMultiplier;
+//		Debug.Log(cascadeMulitplierValue);
+
+
+		int piecescore=0;
+
 		foreach(Match match in reportedMatches)
 		{
 			switch (match.matchCoords.Count)
 			{
 				case 3:
-					PopScore(match,30);
-					AddScore(30);
+					piecescore=10;
 				break;
 
 				case 4:
-					PopScore(match,60);
-					AddScore(60);
+					piecescore=15;
 				break;
+
 				default:
-					int tempScore=20*match.matchCoords.Count;
-					PopScore(match,tempScore);
-					AddScore(tempScore);
+					piecescore=20;
 				break;
 			}
+
+			int totalPieceScore=piecescore*match.matchCoords.Count;
+			int finalScore=Mathf.RoundToInt(totalPieceScore*(1+cascadeMulitplierValue));
+			PopScore(match,finalScore);
+			AddScore(finalScore);
 		}
 	}
 
@@ -573,6 +595,7 @@ public class GameController : MonoBehaviour {
 		{
 			ScoreMatches(DesignateBlobMatches(matches));
 			boardController.RemoveMatches(matches);
+			SetCascade(cascadeLevel+1);
 		}
 		else if (PossibleMatches().Count==0)
 		{
@@ -580,6 +603,7 @@ public class GameController : MonoBehaviour {
 		}
 		else
 		{
+			SetCascade(0);
 			gameState=GAMESTATE.SELECTION;
 		}
 	}
@@ -598,6 +622,7 @@ public class GameController : MonoBehaviour {
 		highScoreDisplay.text=highScoreString;
 		gameState=GAMESTATE.ENDGAME;
 		scoreDisplay.enabled=false;
+		cascadeDisplay.enabled=false;
 		gameEndDisplay.SetActive(true);
 		endScoreDisplay.text="Score: "+score;
 		//Application.LoadLevel("GameSelect");

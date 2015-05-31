@@ -145,6 +145,11 @@ public class ConsoleController : MonoBehaviour {
 				ShowCurrentBlobMatchesCommnad();
 				break;
 			}
+			case "SETCASCADE":
+			{
+				SetCascadeCommandValidate(commandTokens);
+				break;
+			}
 		default:
 			{
 				ConsoleOutputAdd("- Invalid Command: "+commandTokens[0]);
@@ -152,6 +157,35 @@ public class ConsoleController : MonoBehaviour {
 			}
 
 		}
+	}
+
+
+	void SetCascadeCommand(int inCascadeLevel)
+	{
+		gameController.SetCascade(inCascadeLevel);
+	}
+
+	void SetCascadeCommandValidate(string[] commandTokens)
+	{
+		string usageInfo="- Usage: SETCASCADE [#]";
+		
+		//validate number of arguments
+		if (commandTokens.Length!=2) {
+			ConsoleOutputAdd("- Invalid number of arguments to setcascade\n"+
+			                 usageInfo);
+			return;
+			
+		}
+		
+		//validate int
+		int tempCascadeLevel=0;
+		if (!(int.TryParse(commandTokens[1],out tempCascadeLevel)))
+		{
+			ConsoleOutputAdd("- Invalid highscore value: '"+commandTokens[1]+"'\n"+usageInfo);
+			return;
+		}
+		
+		SetCascadeCommand(tempCascadeLevel);
 	}
 
 	void ShowCurrentBlobMatchesCommnad()
@@ -391,6 +425,10 @@ public class ConsoleController : MonoBehaviour {
 				break;
 			case "SHOWCURRENTBLOBMATCHES":
 				ConsoleOutputAdd("- shows the current matches after calculating blob matches");
+				break;
+			case "SETCASCADE":
+				ConsoleOutputAdd("- Usage: SETCASCADE [#]\n"+
+				                 "- sets the cascade value to the input number");
 				break;
 			default:
 				ConsoleOutputAdd("- Could not find help for '"+splitCommand[1]+"'");
