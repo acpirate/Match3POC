@@ -18,11 +18,16 @@ public class GameSelectController : MonoBehaviour {
 	{
 
 		scoreDisplay.text="Last Score:"+GameController.score.ToString();
-		highScoreDisplay.text="High Score:"+GameController.highScore.ToString();
+		UpdateHighScoreDisplay();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
+	}
+
+	public void UpdateHighScoreDisplay()
+	{
+		highScoreDisplay.text="High Score:"+GameController.highScore.ToString();
 	}
 }

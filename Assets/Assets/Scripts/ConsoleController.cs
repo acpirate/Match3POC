@@ -248,7 +248,7 @@ public class ConsoleController : MonoBehaviour {
 
 	void SetHighScoreCommand(int highScoreToSet)
 	{
-		GameController.highScore=highScoreToSet;
+		GameController.SetHighScore(highScoreToSet);
 		ConsoleOutputAdd("Setting high score to "+highScoreToSet.ToString());
 	}
 

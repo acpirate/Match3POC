@@ -120,7 +120,19 @@ public class GameController : MonoBehaviour {
 		quitting=true;
 	} //End OnApplicationQuit
 
-	
+
+
+	//static methods
+
+	public static void SetHighScore(int inHighScore)
+	{
+		highScore=inHighScore;
+		PlayerPrefs.SetInt("Highscore", inHighScore);
+		PlayerPrefs.Save();
+	}
+
+
+
 	//end unity builtin methods
 
 	void TryMatchMoveStop()
@@ -614,8 +626,7 @@ public class GameController : MonoBehaviour {
 			ToggleConsole();
 		string highScoreString="Highscore: "+highScore.ToString();
 		if (score>highScore) { 
-			PlayerPrefs.SetInt("Highscore", score);
-			PlayerPrefs.Save();
+			SetHighScore(score);
 			highScoreString="New High Score!";
 		}
 
