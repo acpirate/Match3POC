@@ -277,7 +277,7 @@ public class ConsoleController : MonoBehaviour {
 
 	void EndGameCommand()
 	{
-		gameController.EndGame();
+		gameController.EndGame("Game Ended From Console");
 	}
 
 	void ResetBoardCommand(string[] commandTokens)

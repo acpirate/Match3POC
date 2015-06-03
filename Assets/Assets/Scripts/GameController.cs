@@ -15,15 +15,16 @@ public class GameController : MonoBehaviour {
 	public static int highScore=0;
 	public static int score=0;
 
-
 	public GameObject console;
 	public Text scoreDisplay;
 	public Text endScoreDisplay;
 	public GameObject gameEndDisplay;
 	public Text cascadeDisplay;
 	public Text highScoreDisplay;
+	public Text gameOverText;
 	public float hintTime=3f;
 	public float cascadeScoreMultiplier=0.1f;
+	public GameObject quitButton;
 
 	[HideInInspector]
 	public bool hintsShowing=false;
@@ -611,7 +612,7 @@ public class GameController : MonoBehaviour {
 		}
 		else if (PossibleMatches().Count==0)
 		{
-			EndGame();
+			EndGame("No Possible Matches\n Game Over");
 		}
 		else
 		{
@@ -620,7 +621,7 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	public void EndGame()
+	public void EndGame(string inEndGameMessage)
 	{
 		if (gameState==GAMESTATE.CONSOLE)
 			ToggleConsole();
@@ -634,7 +635,13 @@ public class GameController : MonoBehaviour {
 		gameState=GAMESTATE.ENDGAME;
 		scoreDisplay.enabled=false;
 		cascadeDisplay.enabled=false;
+		quitButton.SetActive(false);
+
+
+
 		gameEndDisplay.SetActive(true);
+		gameOverText.text=inEndGameMessage;
+
 		endScoreDisplay.text="Score: "+score;
 		//Application.LoadLevel("GameSelect");
 	}
