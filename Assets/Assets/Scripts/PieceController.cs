@@ -73,17 +73,19 @@ public class PieceController : MonoBehaviour {
 	{
 		if (animateMove) AnimateMove();
 	}
-
+#if (!(UNITY_ANDROID))
 	void OnMouseEnter() 
 	{
 		StartSpin();
 		//Debug.Log(boardController.GetIndexOf(gameObject).CoordString());
 	}
 
+
 	void OnMouseExit() 
 	{
 		StopSpin();
 	}
+#endif
 
 	void OnMouseDown()
 	{
