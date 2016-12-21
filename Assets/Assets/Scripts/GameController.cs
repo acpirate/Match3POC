@@ -240,7 +240,7 @@ public class GameController : MonoBehaviour {
 			//Debug.Log("in caculated matches match num "+i+" remove flag is " + calculatedMatches[i].removeFlag);
 			if (calculatedMatches[i].matchCoords.Count==0)
 			{
-				Debug.Log("remove match");
+				//Debug.Log("remove match");
 				calculatedMatches.RemoveAt(i);
 			}
 		}
